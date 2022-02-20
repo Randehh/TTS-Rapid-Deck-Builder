@@ -1,0 +1,24 @@
+﻿<Window x:Class="TTS_CardTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TTS_CardTool"
+		xmlns:views="clr-namespace:TTS_CardTool.Views"
+		mc:Ignorable="d"
+        Title="TTS Deck Builder" Height="450" Width="800">
+    <Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+		<DockPanel Grid.Row="0">
+			<Menu DockPanel.Dock="Top">
+				<MenuItem Header="_New" Command="{Binding NewProjectCommand}"/>
+				<MenuItem Header="_Open" Command="{Binding OpenProjectCommand}"/>
+				<MenuItem Header="_Save" Command="{Binding SaveProjectCommand}"/>
+			</Menu>
+		</DockPanel>
+		<views:DeckProjectView DataContext="{Binding LoadedProject}" Grid.Row="1"/>
+	</Grid>
+</Window>
