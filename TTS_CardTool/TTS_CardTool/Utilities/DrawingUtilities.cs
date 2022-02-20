@@ -9,6 +9,8 @@ namespace TTS_CardTool.Utilities {
 	public static class DrawingUtilities {
 
 		public static void WriteStringInRegion(Graphics gfx, string text, RectangleF region, Font font) {
+			if (string.IsNullOrWhiteSpace(text)) return;
+
 			text = text.Replace(@"\n", "\n");
 			font = GetFontForText(gfx, text, font, region.Width);
 			SizeF titleSize = gfx.MeasureString(text, font);

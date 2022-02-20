@@ -12,7 +12,7 @@ namespace TTS_CardTool.ProjectData {
 			};
 
 			foreach(JsonObject cardObj in document["cards"].AsArray()) {
-				vm.CardList.Add(new DeckCardViewModel() {
+				vm.AddNewCard(new DeckCardViewModel() {
 					Title = cardObj["name"]?.GetValue<string>(),
 					Description = cardObj["description"]?.GetValue<string>(),
 					Count = cardObj["count"]?.GetValue<int>() ?? 1,

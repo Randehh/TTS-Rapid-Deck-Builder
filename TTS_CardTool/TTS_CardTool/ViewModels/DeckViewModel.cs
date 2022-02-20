@@ -1,6 +1,7 @@
 ﻿using RondoFramework.BaseClasses;
 using RondoFramework.ProjectManager;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -21,6 +22,7 @@ namespace TTS_CardTool.ViewModels {
 		private const int IMAGE_HEIGHT = 4096;
 		private const int CARD_WIDTH = IMAGE_WIDTH / CARD_COUNT_HORIZONTAL;
 		private const int CARD_HEIGHT = IMAGE_HEIGHT / CARD_COUNT_VERTICAL;
+		private const int MAX_CARD_COUNT = 69;
 
 		private Bitmap m_ImageBitmap = new Bitmap(IMAGE_WIDTH, IMAGE_HEIGHT);
 		private Font m_StartFont = new Font("Arial", 60);
@@ -28,6 +30,10 @@ namespace TTS_CardTool.ViewModels {
 
 		public DeckViewModel() {
 			UploadToImgurCommand = new SimpleCommand(UploadToImgur);
+			NewCardCommand = new SimpleCommand(AddNewCard, CanAddNewCard);
+			RemoveCardCommand = new SimpleCommand(RemoveCard);
+
+			CardList.CollectionChanged += OnCardListChanged;
 		}
 
 		private string m_DeckName = null;
@@ -36,10 +42,30 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_DeckName, value);
 		}
 
+		public string CardCountStatus => $"Cards in deck: {CardDisplayList.Count}/{MAX_CARD_COUNT}";
+
 		public ObservableCollection<DeckCardViewModel> m_CardList = new ObservableCollection<DeckCardViewModel>();
 		public ObservableCollection<DeckCardViewModel> CardList {
 			get => m_CardList;
 			set => SetProperty(ref m_CardList, value);
+		}
+
+		public ObservableCollection<IDeckCardViewModel> m_CardDisplayList = new ObservableCollection<IDeckCardViewModel>();
+		public ObservableCollection<IDeckCardViewModel> CardDisplayList {
+			get => m_CardDisplayList;
+			set => SetProperty(ref m_CardDisplayList, value);
+		}
+
+		private ICommand m_NewCardCommand;
+		public ICommand NewCardCommand {
+			get => m_NewCardCommand;
+			set => SetProperty(ref m_NewCardCommand, value);
+		}
+
+		private ICommand m_RemoveCardCommand;
+		public ICommand RemoveCardCommand {
+			get => m_RemoveCardCommand;
+			set => SetProperty(ref m_RemoveCardCommand, value);
 		}
 
 		private bool m_IsPreviewImageTabOpen = false;
@@ -69,6 +95,43 @@ namespace TTS_CardTool.ViewModels {
 		public string ImgurLink {
 			get => m_ImgurLink;
 			set => SetProperty(ref m_ImgurLink, value);
+		}
+
+		public void AddNewCard(object o) {
+			DeckCardViewModel newCard = o == null ? new DeckCardViewModel() : o as DeckCardViewModel;
+			m_CardList.Add(newCard);
+			newCard.PropertyChanged += OnCardDataUpdated;
+		}
+
+		private bool CanAddNewCard() {
+			return m_CardList.Count < MAX_CARD_COUNT;
+		}
+
+		private void RemoveCard(object o) {
+			DeckCardViewModel card = o as DeckCardViewModel;
+			card.PropertyChanged += OnCardDataUpdated;
+			m_CardList.Remove(card);
+		}
+
+		private void OnCardDataUpdated(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
+			UpdateDisplayList();
+		}
+
+		private void OnCardListChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) {
+			UpdateDisplayList();
+		}
+
+		private void UpdateDisplayList() {
+			CardDisplayList.Clear();
+			foreach (DeckCardViewModel card in CardList) {
+				CardDisplayList.Add(card);
+
+				for (int i = 1; i < card.Count; i++) {
+					CardDisplayList.Add(new DeckCardDisplayViewModel(card, true));
+				}
+			}
+			OnPropertyChanged(nameof(CardDisplayList));
+			OnPropertyChanged(nameof(CardCountStatus));
 		}
 
 		private Task DrawImage() {
@@ -107,14 +170,14 @@ namespace TTS_CardTool.ViewModels {
 			gfx.DrawRectangle(new Pen(Color.Black, 4), fullCardRect);
 
 			int cardIndex = column + (row * CARD_COUNT_HORIZONTAL);
-			if (CardList.Count > cardIndex) {
+			if (CardDisplayList.Count > cardIndex) {
 				int margin = 16;
 				RectangleF cardRectMargins = DrawingUtilities.AddMarginToRect(cardRect, margin);
 
 				RectangleF titleRegion = new RectangleF(cardRectMargins.X, cardRectMargins.Y, cardRectMargins.Width, cardRectMargins.Height * 0.25f);
 				RectangleF descriptionRegion = new RectangleF(cardRectMargins.X, cardRectMargins.Y + cardRectMargins.Height * 0.25f, cardRectMargins.Width, cardRectMargins.Height * 0.75f);
 
-				DeckCardViewModel card = CardList[cardIndex];
+				IDeckCardViewModel card = CardDisplayList[cardIndex];
 
 				DrawingUtilities.WriteStringInRegion(gfx, card.Title, titleRegion, m_StartFont);
 				DrawingUtilities.WriteStringInRegion(gfx, card.Description, descriptionRegion, m_StartFont);

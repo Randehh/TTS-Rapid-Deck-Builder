@@ -94,8 +94,10 @@
     <Compile Include="ProjectData\DeckSerializers.cs" />
     <Compile Include="Utilities\DrawingUtilities.cs" />
     <Compile Include="Utilities\ImgurUtilities.cs" />
+    <Compile Include="ViewModels\DeckCardDisplayViewModel.cs" />
     <Compile Include="ViewModels\DeckCardViewModel.cs" />
     <Compile Include="ViewModels\DeckViewModel.cs" />
+    <Compile Include="ViewModels\IDeckCardViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\TextDialogViewModel.cs" />
     <Compile Include="ViewModels\TTSProjectViewModel.cs" />
