@@ -7,9 +7,13 @@ namespace TTS_CardTool.ProjectData {
 		public int Version => 1;
 
 		public IProjectModule Deserialize(JsonNode document) {
-			DeckViewModel vm = new DeckViewModel() {
-				DeckName = document["name"]?.GetValue<string>(),
+			DeckConfig config = new DeckConfig() {
+				DisplayName = document["name"]?.GetValue<string>(),
+				Width = document["width"]?.GetValue<int>() ?? 0,
+				Height = document["height"]?.GetValue<int>() ?? 0,
 			};
+
+			DeckViewModel vm = new DeckViewModel(config);
 
 			foreach (JsonObject cardObj in document["cards"].AsArray()) {
 				vm.AddNewCard(new DeckCardViewModel() {
@@ -24,7 +28,9 @@ namespace TTS_CardTool.ProjectData {
 		public JsonNode Serialize(IProjectModule module) {
 			DeckViewModel vm = module as DeckViewModel;
 			return new JsonObject() {
-				["name"] = vm.DeckName,
+				["name"] = vm.DeckConfig.DisplayName,
+				["width"] = vm.DeckConfig.Width,
+				["height"] = vm.DeckConfig.Height,
 				["cards"] = CreateCardList(vm)
 			};
 		}

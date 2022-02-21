@@ -34,10 +34,10 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		private void AddNewDeck() {
-			string deckName = TextDialog.ShowDialog("Create new deck", "Type the name of your new deck");
-			if (string.IsNullOrWhiteSpace(deckName)) return;
+			DeckConfig config = DeckCreationDialog.ShowCreationDialog();
+			if (config == null) return;
 
-			DeckList.Add(new DeckViewModel() { DeckName = deckName });
+			DeckList.Add(new DeckViewModel(config));
 		}
 
 		public string ModuleName => "TTS_Project";

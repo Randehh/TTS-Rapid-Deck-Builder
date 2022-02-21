@@ -98,6 +98,8 @@
     <Compile Include="Utilities\ImgurUtilities.cs" />
     <Compile Include="ViewModels\DeckCardDisplayViewModel.cs" />
     <Compile Include="ViewModels\DeckCardViewModel.cs" />
+    <Compile Include="ViewModels\DeckCreationDialogViewModel.cs" />
+    <Compile Include="ViewModels\DeckConfig.cs" />
     <Compile Include="ViewModels\DeckViewModel.cs" />
     <Compile Include="ViewModels\IDeckCardViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
@@ -114,6 +116,9 @@
     </Compile>
     <Compile Include="Views\GameDeckList.xaml.cs">
       <DependentUpon>GameDeckList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DeckCreationDialog.xaml.cs">
+      <DependentUpon>DeckCreationDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TextDialog.xaml.cs">
       <DependentUpon>TextDialog.xaml</DependentUpon>
@@ -145,6 +150,10 @@
     <Page Include="Views\GameDeckList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DeckCreationDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\TextDialog.xaml">
       <SubType>Designer</SubType>

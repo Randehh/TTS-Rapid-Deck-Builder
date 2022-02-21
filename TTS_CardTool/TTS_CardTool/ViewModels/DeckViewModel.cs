@@ -13,22 +13,28 @@ using TTS_CardTool.Utilities;
 
 namespace TTS_CardTool.ViewModels {
 	public class DeckViewModel : ViewModelBase, IProjectModule {
-		public string ModuleName => $"Deck_{DeckName}";
+		public string ModuleName => $"Deck_{DeckConfig.DisplayName}";
 
 		private const string LOCAL_RENDER_FILE_NAME = "render.png";
 		private const int CARD_COUNT_HORIZONTAL = 10;
 		private const int CARD_COUNT_VERTICAL = 7;
-		private const int IMAGE_WIDTH = 4096;
-		private const int IMAGE_HEIGHT = 4096;
-		private const int CARD_WIDTH = IMAGE_WIDTH / CARD_COUNT_HORIZONTAL;
-		private const int CARD_HEIGHT = IMAGE_HEIGHT / CARD_COUNT_VERTICAL;
 		private const int MAX_CARD_COUNT = 69;
 
-		private Bitmap m_ImageBitmap = new Bitmap(IMAGE_WIDTH, IMAGE_HEIGHT);
+		private int ImageWidth => DeckConfig.Width;
+		private int ImageHeight => DeckConfig.Height;
+		private int CardWidth => ImageWidth / CARD_COUNT_HORIZONTAL;
+		private int CardHeight => ImageHeight / CARD_COUNT_VERTICAL;
+
+
+		private Bitmap m_ImageBitmap;
 		private Font m_StartFont = new Font("Arial", 60);
 		private SolidBrush m_CardBackgroundBrush = new SolidBrush(Color.Snow);
 
-		public DeckViewModel() {
+		public DeckViewModel(DeckConfig config) {
+			DeckConfig = config;
+
+			m_ImageBitmap = new Bitmap(ImageWidth, ImageHeight);
+
 			UploadToImgurCommand = new SimpleCommand(UploadToImgur);
 			NewCardCommand = new SimpleCommand(AddNewCard, CanAddNewCard);
 			RemoveCardCommand = new SimpleCommand(RemoveCard);
@@ -36,10 +42,10 @@ namespace TTS_CardTool.ViewModels {
 			CardList.CollectionChanged += OnCardListChanged;
 		}
 
-		private string m_DeckName = null;
-		public string DeckName {
-			get => m_DeckName;
-			set => SetProperty(ref m_DeckName, value);
+		private DeckConfig m_DeckConfig;
+		public DeckConfig DeckConfig {
+			get => m_DeckConfig;
+			set => SetProperty(ref m_DeckConfig, value);
 		}
 
 		public string CardCountStatus => $"Cards in deck: {CardDisplayList.Count}/{MAX_CARD_COUNT}";
@@ -170,10 +176,10 @@ namespace TTS_CardTool.ViewModels {
 
 		private void DrawCard(Graphics gfx, int row, int column) {
 			RectangleF cardRect = new RectangleF(
-				CARD_WIDTH * column,
-				CARD_HEIGHT * row,
-				CARD_WIDTH,
-				CARD_HEIGHT);
+				CardWidth * column,
+				CardHeight * row,
+				CardWidth,
+				CardHeight);
 
 			Rectangle fullCardRect = new Rectangle((int)cardRect.X, (int)cardRect.Y, (int)cardRect.Width, (int)cardRect.Height);
 			gfx.FillRectangle(m_CardBackgroundBrush, fullCardRect);
