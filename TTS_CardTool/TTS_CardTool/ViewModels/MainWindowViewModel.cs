@@ -2,6 +2,7 @@
 using RondoFramework.ProjectManager;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using TTS_CardTool.ProjectData;
 using TTS_CardTool.Views;
 
@@ -55,9 +56,8 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		private void CreateNewProject() {
-			if (LoadedProject != null) {
-				// Show "are you sure" warning
-				m_ProjectManager.Save();
+			if (!ShowCloseWarning()) {
+				return;
 			}
 
 			string projectName = TextDialog.ShowDialog("New project", "Type the name of the new project.");
@@ -71,13 +71,36 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		private void LoadProject() {
-			m_ProjectManager.LoadFromDialog();
+			if (!ShowCloseWarning()) {
+				return;
+			}
+
+			IProject project = m_ProjectManager.LoadFromDialog();
+			if (project == null) return;
+
 			LoadedProject = ProjectData.Modules.Where((module) => module is TTSProjectViewModel).First() as TTSProjectViewModel;
 		}
 
 		private void SaveProject() {
 			ProjectData.RefreshDeckModules(LoadedProject);
 			m_ProjectManager.Save();
+		}
+
+		private bool ShowCloseWarning() {
+			if (LoadedProject == null) return true;
+
+			DialogResult result = MessageBox.Show("Do you want to save before closing the current project?", "Closing project...", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+			switch (result) {
+				case DialogResult.Yes:
+					SaveProject();
+					return true;
+
+				case DialogResult.No:
+					return true;
+
+				default:
+					return false;
+			}
 		}
 	}
 }

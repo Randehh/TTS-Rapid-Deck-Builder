@@ -1,7 +1,6 @@
 ﻿using RondoFramework.BaseClasses;
 using RondoFramework.ProjectManager;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -16,6 +15,7 @@ namespace TTS_CardTool.ViewModels {
 	public class DeckViewModel : ViewModelBase, IProjectModule {
 		public string ModuleName => $"Deck_{DeckName}";
 
+		private const string LOCAL_RENDER_FILE_NAME = "render.png";
 		private const int CARD_COUNT_HORIZONTAL = 10;
 		private const int CARD_COUNT_VERTICAL = 7;
 		private const int IMAGE_WIDTH = 4096;
@@ -85,6 +85,12 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_PreviewDeckBitmap, value);
 		}
 
+		private bool m_IsRendering = false;
+		public bool IsRendering {
+			get => m_IsRendering;
+			set => SetProperty(ref m_IsRendering, value);
+		}
+
 		private ICommand m_UploadToImgurCommand;
 		public ICommand UploadToImgurCommand {
 			get => m_UploadToImgurCommand;
@@ -135,6 +141,8 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		private Task DrawImage() {
+			IsRendering = true;
+
 			using (Graphics gfx = Graphics.FromImage(m_ImageBitmap)) {
 				gfx.SmoothingMode = SmoothingMode.AntiAlias;
 				gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -154,7 +162,9 @@ namespace TTS_CardTool.ViewModels {
 				PreviewDeckBitmap = Imaging.CreateBitmapSourceFromHBitmap(m_ImageBitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
 			});
 
-			m_ImageBitmap.Save("test.png", System.Drawing.Imaging.ImageFormat.Png);
+			m_ImageBitmap.Save(LOCAL_RENDER_FILE_NAME, System.Drawing.Imaging.ImageFormat.Png);
+
+			IsRendering = false;
 			return Task.CompletedTask;
 		}
 
@@ -179,16 +189,21 @@ namespace TTS_CardTool.ViewModels {
 
 				IDeckCardViewModel card = CardDisplayList[cardIndex];
 
-				DrawingUtilities.WriteStringInRegion(gfx, card.Title, titleRegion, m_StartFont);
-				DrawingUtilities.WriteStringInRegion(gfx, card.Description, descriptionRegion, m_StartFont);
+				DrawingUtilities.WriteStringInRegion(gfx, card.Title, titleRegion, m_StartFont, new StringFormat());
+				DrawingUtilities.WriteStringInRegion(gfx, card.Description, descriptionRegion, m_StartFont, new StringFormat());
 			}
 		}
 
 		private void UploadToImgur(object o) {
 			ImgurLink = "Uploading...";
 			Task.Run(async () => {
-				ImgurLink = await ImgurUtilities.UploadImage("test.png");
-			 });
+				string resultUrl = await ImgurUtilities.UploadImage(LOCAL_RENDER_FILE_NAME);
+				if (string.IsNullOrWhiteSpace(resultUrl)) {
+					ImgurLink = "Failed to upload.";
+				} else {
+					ImgurLink = resultUrl;
+				}
+			});
 		}
 	}
 }

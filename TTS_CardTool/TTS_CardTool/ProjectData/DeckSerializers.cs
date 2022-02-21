@@ -11,7 +11,7 @@ namespace TTS_CardTool.ProjectData {
 				DeckName = document["name"]?.GetValue<string>(),
 			};
 
-			foreach(JsonObject cardObj in document["cards"].AsArray()) {
+			foreach (JsonObject cardObj in document["cards"].AsArray()) {
 				vm.AddNewCard(new DeckCardViewModel() {
 					Title = cardObj["name"]?.GetValue<string>(),
 					Description = cardObj["description"]?.GetValue<string>(),
