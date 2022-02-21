@@ -1,7 +1,10 @@
-﻿namespace TTS_CardTool.ViewModels {
+﻿using System;
+
+namespace TTS_CardTool.ViewModels {
 	public interface IDeckCardViewModel {
 		string Title { get; set; }
 		string Description { get; set; }
 		int Count { get; set; }
+		Action OnCardUpdated { get; set; }
 	}
 }

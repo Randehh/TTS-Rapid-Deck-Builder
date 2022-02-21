@@ -27,13 +27,13 @@ namespace TTS_CardTool.ViewModels {
 
 
 		private Bitmap m_ImageBitmap;
-		private Font m_StartFont = new Font("Arial", 60);
-		private SolidBrush m_CardBackgroundBrush = new SolidBrush(Color.Snow);
+		private Bitmap m_CardBitmap;
 
 		public DeckViewModel(DeckConfig config) {
 			DeckConfig = config;
 
 			m_ImageBitmap = new Bitmap(ImageWidth, ImageHeight);
+			m_CardBitmap = new Bitmap(CardWidth, CardHeight);
 
 			UploadToImgurCommand = new SimpleCommand(UploadToImgur);
 			NewCardCommand = new SimpleCommand(AddNewCard, CanAddNewCard);
@@ -50,16 +50,27 @@ namespace TTS_CardTool.ViewModels {
 
 		public string CardCountStatus => $"Cards in deck: {CardDisplayList.Count}/{MAX_CARD_COUNT}";
 
-		public ObservableCollection<DeckCardViewModel> m_CardList = new ObservableCollection<DeckCardViewModel>();
+		private ObservableCollection<DeckCardViewModel> m_CardList = new ObservableCollection<DeckCardViewModel>();
 		public ObservableCollection<DeckCardViewModel> CardList {
 			get => m_CardList;
 			set => SetProperty(ref m_CardList, value);
 		}
 
-		public ObservableCollection<IDeckCardViewModel> m_CardDisplayList = new ObservableCollection<IDeckCardViewModel>();
+		private ObservableCollection<IDeckCardViewModel> m_CardDisplayList = new ObservableCollection<IDeckCardViewModel>();
 		public ObservableCollection<IDeckCardViewModel> CardDisplayList {
 			get => m_CardDisplayList;
 			set => SetProperty(ref m_CardDisplayList, value);
+		}
+
+		private IDeckCardViewModel m_SelectedCard;
+		public IDeckCardViewModel SelectedCard {
+			get => m_SelectedCard;
+			set {
+				if (m_SelectedCard != null) m_SelectedCard.OnCardUpdated -= DrawCardPreview;
+				SetProperty(ref m_SelectedCard, value);
+				DrawCardPreview();
+				if (m_SelectedCard != null) m_SelectedCard.OnCardUpdated += DrawCardPreview;
+			}
 		}
 
 		private ICommand m_NewCardCommand;
@@ -80,7 +91,7 @@ namespace TTS_CardTool.ViewModels {
 			set {
 				SetProperty(ref m_IsPreviewImageTabOpen, value);
 				if (value) {
-					Task.Run(DrawImage);
+					Task.Run(DrawDeckPreview);
 				}
 			}
 		}
@@ -89,6 +100,12 @@ namespace TTS_CardTool.ViewModels {
 		public BitmapSource PreviewDeckBitmap {
 			get => m_PreviewDeckBitmap;
 			set => SetProperty(ref m_PreviewDeckBitmap, value);
+		}
+
+		private BitmapSource m_SelectedCardBitmap;
+		public BitmapSource SelectedCardBitmap {
+			get => m_SelectedCardBitmap;
+			set => SetProperty(ref m_SelectedCardBitmap, value);
 		}
 
 		private bool m_IsRendering = false;
@@ -146,7 +163,7 @@ namespace TTS_CardTool.ViewModels {
 			OnPropertyChanged(nameof(CardCountStatus));
 		}
 
-		private Task DrawImage() {
+		private Task DrawDeckPreview() {
 			IsRendering = true;
 
 			using (Graphics gfx = Graphics.FromImage(m_ImageBitmap)) {
@@ -174,30 +191,31 @@ namespace TTS_CardTool.ViewModels {
 			return Task.CompletedTask;
 		}
 
+		private void DrawCardPreview() {
+			Task.Run(DrawCardPreviewTask);
+		}
+
+		private Task DrawCardPreviewTask() {
+			if (SelectedCard == null) return Task.CompletedTask;
+
+			DrawingUtilities.DrawCard(m_CardBitmap, SelectedCard, CardWidth, CardHeight);
+
+			Application.Current.Dispatcher.Invoke(() => {
+				SelectedCardBitmap = Imaging.CreateBitmapSourceFromHBitmap(m_CardBitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+			});
+
+			return Task.CompletedTask;
+		}
+
 		private void DrawCard(Graphics gfx, int row, int column) {
-			RectangleF cardRect = new RectangleF(
-				CardWidth * column,
-				CardHeight * row,
-				CardWidth,
-				CardHeight);
-
-			Rectangle fullCardRect = new Rectangle((int)cardRect.X, (int)cardRect.Y, (int)cardRect.Width, (int)cardRect.Height);
-			gfx.FillRectangle(m_CardBackgroundBrush, fullCardRect);
-			gfx.DrawRectangle(new Pen(Color.Black, 4), fullCardRect);
-
 			int cardIndex = column + (row * CARD_COUNT_HORIZONTAL);
-			if (CardDisplayList.Count > cardIndex) {
-				int margin = 16;
-				RectangleF cardRectMargins = DrawingUtilities.AddMarginToRect(cardRect, margin);
-
-				RectangleF titleRegion = new RectangleF(cardRectMargins.X, cardRectMargins.Y, cardRectMargins.Width, cardRectMargins.Height * 0.25f);
-				RectangleF descriptionRegion = new RectangleF(cardRectMargins.X, cardRectMargins.Y + cardRectMargins.Height * 0.25f, cardRectMargins.Width, cardRectMargins.Height * 0.75f);
-
-				IDeckCardViewModel card = CardDisplayList[cardIndex];
-
-				DrawingUtilities.WriteStringInRegion(gfx, card.Title, titleRegion, m_StartFont, new StringFormat());
-				DrawingUtilities.WriteStringInRegion(gfx, card.Description, descriptionRegion, m_StartFont, new StringFormat());
-			}
+			DrawingUtilities.DrawCard(
+				gfx,
+				CardDisplayList.Count > cardIndex ? CardDisplayList[cardIndex] : null,
+				CardWidth,
+				CardHeight,
+				CardWidth * column,
+				CardHeight * row);
 		}
 
 		private void UploadToImgur(object o) {

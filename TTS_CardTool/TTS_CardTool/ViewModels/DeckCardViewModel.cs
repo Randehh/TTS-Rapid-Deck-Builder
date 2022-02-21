@@ -1,4 +1,5 @@
 ﻿using RondoFramework.BaseClasses;
+using System;
 using System.Windows.Input;
 
 namespace TTS_CardTool.ViewModels {
@@ -7,6 +8,12 @@ namespace TTS_CardTool.ViewModels {
 		public DeckCardViewModel() {
 			CountIncreaseCommand = new SimpleCommand((o) => Count++);
 			CountDecreaseCommand = new SimpleCommand((o) => Count--, () => Count > 1);
+
+			PropertyChanged += DeckCardViewModel_PropertyChanged;
+		}
+
+		private void DeckCardViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
+			OnCardUpdated();
 		}
 
 		private ICommand m_CountIncreaseCommand;
@@ -44,5 +51,7 @@ namespace TTS_CardTool.ViewModels {
 			get => m_IsChild;
 			set => SetProperty(ref m_IsChild, value);
 		}
+
+		public Action OnCardUpdated { get; set; } = delegate { };
 	}
 }

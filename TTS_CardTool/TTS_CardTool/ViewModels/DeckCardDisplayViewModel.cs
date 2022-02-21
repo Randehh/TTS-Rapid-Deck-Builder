@@ -1,4 +1,5 @@
 ﻿using RondoFramework.BaseClasses;
+using System;
 
 namespace TTS_CardTool.ViewModels {
 	public class DeckCardDisplayViewModel : ViewModelBase, IDeckCardViewModel {
@@ -26,5 +27,10 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		public bool IsChild { get; }
+
+		public Action OnCardUpdated {
+			get => m_ReferenceCard.OnCardUpdated;
+			set => m_ReferenceCard.OnCardUpdated = value;
+		}
 	}
 }

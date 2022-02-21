@@ -40,71 +40,94 @@
 		<StackPanel Orientation="Horizontal">
 			<TextBlock Text="{Binding CardCountStatus}"/>
 		</StackPanel>
-		<DataGrid ItemsSource="{Binding CardDisplayList}"
-				  CanUserAddRows="False"
-				  CanUserDeleteRows="False"
-				  CanUserResizeRows="False"
-				  ColumnWidth="*"
-				  AutoGenerateColumns="False"
-				  Margin="0,4,0,0">
-			<DataGrid.Resources>
-				<Style x:Key="{x:Type DataGridCell}" TargetType="{x:Type DataGridCell}">
-					<Setter Property="Background" Value="{x:Null}" />
-					<Setter Property="BorderBrush" Value="{x:Null}" />
-					<Style.Triggers>
-						<Trigger Property="IsSelected" Value="True">
-							<Setter Property="Background" Value="{x:Null}" />
-							<Setter Property="BorderBrush" Value="{x:Null}" />
-							<Setter Property="Foreground" Value="Black"/>
-						</Trigger>
-					</Style.Triggers>
-				</Style>
-				<Style TargetType="{x:Type DataGridRow}">
-					<Setter Property="Background" Value="{x:Null}" />
-					<Setter Property="BorderBrush" Value="{x:Null}" />
-					<Style.Triggers>
-						<Trigger Property="IsSelected" Value="True">
-							<Setter Property="Background" Value="{x:Null}" />
-							<Setter Property="BorderBrush" Value="{x:Null}" />
-							<Setter Property="Foreground" Value="Black"/>
-						</Trigger>
-						<DataTrigger Binding="{Binding IsChild}" Value="True">
-							<Setter Property="IsEnabled" Value="False"/>
-						</DataTrigger>
-					</Style.Triggers>
-				</Style>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="3*"/>
+				<ColumnDefinition Width="4"/>
+				<ColumnDefinition Width="*" MaxWidth="200"/>
+			</Grid.ColumnDefinitions>
 
-				<DataTemplate x:Key="RemoveButton">
-					<Button Content="Remove"
+			<Grid Grid.Column="0">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="4"/>
+					<RowDefinition Height="auto"/>
+				</Grid.RowDefinitions>
+				
+				<DataGrid
+					ItemsSource="{Binding CardDisplayList}"
+					SelectedItem="{Binding SelectedCard}"
+					CanUserAddRows="False"
+					CanUserDeleteRows="False"
+					CanUserResizeRows="False"
+					ColumnWidth="*"
+					AutoGenerateColumns="False"
+					Margin="0,4,0,0"
+					Grid.Row="0">
+					<DataGrid.Resources>
+						<Style x:Key="{x:Type DataGridCell}" TargetType="{x:Type DataGridCell}">
+							<Setter Property="Background" Value="{x:Null}" />
+							<Setter Property="BorderBrush" Value="{x:Null}" />
+							<Style.Triggers>
+								<Trigger Property="IsSelected" Value="True">
+									<Setter Property="Background" Value="{x:Null}" />
+									<Setter Property="BorderBrush" Value="{x:Null}" />
+									<Setter Property="Foreground" Value="Black"/>
+								</Trigger>
+							</Style.Triggers>
+						</Style>
+						<Style TargetType="{x:Type DataGridRow}">
+							<Setter Property="Background" Value="{x:Null}" />
+							<Setter Property="BorderBrush" Value="{x:Null}" />
+							<Style.Triggers>
+								<Trigger Property="IsSelected" Value="True">
+									<Setter Property="Background" Value="{x:Null}" />
+									<Setter Property="BorderBrush" Value="{x:Null}" />
+									<Setter Property="Foreground" Value="Black"/>
+								</Trigger>
+								<DataTrigger Binding="{Binding IsChild}" Value="True">
+									<Setter Property="IsEnabled" Value="False"/>
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+
+						<DataTemplate x:Key="RemoveButton">
+							<Button Content="Remove"
 							Command="{Binding DataContext.RemoveCardCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type StackPanel}}}"
 							CommandParameter="{Binding}"/>
-				</DataTemplate>
-				<DataTemplate x:Key="CardCounter">
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="*"/>
-							<ColumnDefinition Width="auto"/>
-						</Grid.ColumnDefinitions>
-						<TextBlock Text="{Binding Count}" Grid.Column="0"/>
-						<Grid Grid.Column="1">
-							<Grid.RowDefinitions>
-								<RowDefinition Height="10"/>
-								<RowDefinition Height="10"/>
-							</Grid.RowDefinitions>
-							<Button Content=" ↑ " Grid.Row="0" Command="{Binding CountIncreaseCommand}" Style="{DynamicResource SmallButton}"/>
-							<Button Content=" ↓ " Grid.Row="1" Command="{Binding CountDecreaseCommand}" Style="{DynamicResource SmallButton}"/>
-						</Grid>
-					</Grid>
-				</DataTemplate>
-			</DataGrid.Resources>
-			<DataGrid.Columns>
-				<DataGridTextColumn Header="Card title" Binding="{Binding Title}" Width="4*"/>
-				<DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="8*"/>
-				<DataGridTemplateColumn Header="Amount in deck" CellTemplate="{StaticResource CardCounter}" Width="*"/>
-				<DataGridTemplateColumn Header="" CellTemplate="{StaticResource RemoveButton}" Width="*"/>
-			</DataGrid.Columns>
-		</DataGrid>
+						</DataTemplate>
+						<DataTemplate x:Key="CardCounter">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*"/>
+									<ColumnDefinition Width="auto"/>
+								</Grid.ColumnDefinitions>
+								<TextBlock Text="{Binding Count}" Grid.Column="0"/>
+								<Grid Grid.Column="1">
+									<Grid.RowDefinitions>
+										<RowDefinition Height="10"/>
+										<RowDefinition Height="10"/>
+									</Grid.RowDefinitions>
+									<Button Content=" ↑ " Grid.Row="0" Command="{Binding CountIncreaseCommand}" Style="{DynamicResource SmallButton}"/>
+									<Button Content=" ↓ " Grid.Row="1" Command="{Binding CountDecreaseCommand}" Style="{DynamicResource SmallButton}"/>
+								</Grid>
+							</Grid>
+						</DataTemplate>
+					</DataGrid.Resources>
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="Card title" Binding="{Binding Title}" Width="4*"/>
+						<DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="8*"/>
+						<DataGridTemplateColumn Header="Amount in deck" CellTemplate="{StaticResource CardCounter}" Width="*"/>
+						<DataGridTemplateColumn Header="" CellTemplate="{StaticResource RemoveButton}" Width="*"/>
+					</DataGrid.Columns>
+				</DataGrid>
 
-		<Button Content="New card" Command="{Binding NewCardCommand}" Margin="0,4,0,0"/>
+				<Button Content="New card" Command="{Binding NewCardCommand}" Grid.Row="2"/>
+			</Grid>
+
+			<Grid Background="Gray" Grid.Column="2">
+				<Image Source="{Binding SelectedCardBitmap}" Margin="8"/>
+			</Grid>
+		</Grid>
 	</StackPanel>
 </UserControl>
