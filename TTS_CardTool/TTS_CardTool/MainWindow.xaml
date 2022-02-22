@@ -14,11 +14,24 @@
 		</Grid.RowDefinitions>
 		<DockPanel Grid.Row="0">
 			<Menu DockPanel.Dock="Top">
-				<MenuItem Header="_New" Command="{Binding NewProjectCommand}"/>
-				<MenuItem Header="_Open" Command="{Binding OpenProjectCommand}"/>
-				<MenuItem Header="_Save" Command="{Binding SaveProjectCommand}"/>
+				<MenuItem Header="File">
+					<MenuItem Header="_New" Command="{Binding NewProjectCommand}"/>
+					<MenuItem Header="_Open" Command="{Binding OpenProjectCommand}"/>
+					<MenuItem
+						Header="Open _recent"
+						ItemsSource="{Binding RecentFiles}"
+						DisplayMemberPath="FileName">
+						<MenuItem.ItemContainerStyle>
+							<Style TargetType="MenuItem">
+								<Setter Property="Command" Value="{Binding DataContext.OpenRecentProjectCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type DockPanel}}}"/>
+								<Setter Property="CommandParameter" Value="{Binding}"/>
+							</Style>
+						</MenuItem.ItemContainerStyle>
+					</MenuItem>
+					<MenuItem Header="_Save" Command="{Binding SaveProjectCommand}"/>
+				</MenuItem>
 			</Menu>
 		</DockPanel>
-		<views:DeckProjectView DataContext="{Binding LoadedProject}" Grid.Row="1"/>
+		<views:DeckProjectView DataContext="{Binding LoadedProject}" Grid.Row="1" Margin="4"/>
 	</Grid>
 </Window>

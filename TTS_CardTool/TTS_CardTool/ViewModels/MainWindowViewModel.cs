@@ -1,5 +1,6 @@
 ﻿using RondoFramework.BaseClasses;
 using RondoFramework.ProjectManager;
+using RondoFramework.RecentFilesTracker;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -9,6 +10,7 @@ using TTS_CardTool.Views;
 namespace TTS_CardTool.ViewModels {
 	public class MainWindowViewModel : ViewModelBase {
 		private ProjectManager m_ProjectManager;
+		private RecentFilesTracker m_RecentFilesTracker = new RecentFilesTracker("TTSDeckBuilder");
 
 		private TTSProjectData ProjectData => m_ProjectManager.LoadedProject as TTSProjectData;
 
@@ -30,15 +32,28 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_OpenProjectCommand, value);
 		}
 
+		private SimpleCommand m_OpenRecentProjectCommand;
+		public SimpleCommand OpenRecentProjectCommand {
+			get => m_OpenRecentProjectCommand;
+			set => SetProperty(ref m_OpenRecentProjectCommand, value);
+		}
+
 		private SimpleCommand m_SaveProjectCommand;
 		public SimpleCommand SaveProjectCommand {
 			get => m_SaveProjectCommand;
 			set => SetProperty(ref m_SaveProjectCommand, value);
 		}
 
+		private List<RecentFile> m_RecentFiles;
+		public List<RecentFile> RecentFiles {
+			get => m_RecentFiles;
+			set => SetProperty(ref m_RecentFiles, value);
+		}
+
 		public MainWindowViewModel() {
 			NewProjectCommand = new SimpleCommand((o) => { CreateNewProject(); });
 			OpenProjectCommand = new SimpleCommand((o) => { LoadProject(); });
+			OpenRecentProjectCommand = new SimpleCommand((o) => LoadProject(o as RecentFile));
 			SaveProjectCommand = new SimpleCommand((o) => { SaveProject(); }, () => ProjectData != null);
 
 			m_ProjectManager = new ProjectManager();
@@ -53,6 +68,9 @@ namespace TTS_CardTool.ViewModels {
 				new List<IProjectModuleSerializer>() {
 					new DeckSerializer_V1(),
 				});
+
+			m_RecentFilesTracker.OnUpdate += UpdateRecentlyOpenedFiles;
+			m_RecentFilesTracker.Load();
 		}
 
 		private void CreateNewProject() {
@@ -66,8 +84,14 @@ namespace TTS_CardTool.ViewModels {
 			}
 
 			m_ProjectManager.NewProject<TTSProjectData>(projectName);
+			if(m_ProjectManager.LoadedProject == null) {
+				return;
+			}
+
 			m_ProjectManager.AddProjectModule(new TTSProjectViewModel() { ProjectName = projectName });
 			m_ProjectManager.Save();
+
+			m_RecentFilesTracker.AddRecentlyOpenedFile(m_ProjectManager.LoadedProject.ProjectFilePath);
 		}
 
 		private void LoadProject() {
@@ -76,9 +100,25 @@ namespace TTS_CardTool.ViewModels {
 			}
 
 			IProject project = m_ProjectManager.LoadFromDialog();
+			LoadProject(project);
+		}
+
+		private void LoadProject(RecentFile file) {
+			if (!ShowCloseWarning()) {
+				return;
+			}
+
+			string path = $"{file.FullPath}.project";
+			IProject project = m_ProjectManager.Load(path);
+			LoadProject(project);
+		}
+
+		private void LoadProject(IProject project) {
 			if (project == null) return;
 
 			LoadedProject = ProjectData.Modules.Where((module) => module is TTSProjectViewModel).First() as TTSProjectViewModel;
+
+			m_RecentFilesTracker.AddRecentlyOpenedFile(project.ProjectFilePath);
 		}
 
 		private void SaveProject() {
@@ -101,6 +141,10 @@ namespace TTS_CardTool.ViewModels {
 				default:
 					return false;
 			}
+		}
+
+		private void UpdateRecentlyOpenedFiles() {
+			RecentFiles = m_RecentFilesTracker.RecentlyOpenedFiles;
 		}
 	}
 }
