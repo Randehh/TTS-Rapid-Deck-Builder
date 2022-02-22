@@ -17,7 +17,12 @@ namespace TTS_CardTool.ViewModels {
 			return m_CachedList;
 		}
 
-		public string DisplayName { get; set; }
+		private string m_DisplayName;
+		public string DisplayName {
+			get => m_DisplayName;
+			set => SetProperty(ref m_DisplayName, value);
+
+		}
 		private int m_Width;
 		public int Width {
 			get => m_Width;

@@ -1,6 +1,9 @@
 ﻿using RondoFramework.BaseClasses;
 using RondoFramework.ProjectManager;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows.Controls;
+using System.Windows.Input;
 using TTS_CardTool.Views;
 
 namespace TTS_CardTool.ViewModels {
@@ -23,14 +26,31 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_DeckList, value);
 		}
 
-		private SimpleCommand m_CreateNewDeck;
-		public SimpleCommand CreateNewDeck {
+		private List<MenuItem> m_DeckContextMenuItems;
+		public List<MenuItem> DeckContextMenuItems {
+			get => m_DeckContextMenuItems;
+			set => SetProperty(ref m_DeckContextMenuItems, value);
+		}
+
+		private ICommand m_CreateNewDeck;
+		public ICommand CreateNewDeck {
 			get => m_CreateNewDeck;
 			set => SetProperty(ref m_CreateNewDeck, value);
 		}
 
+		private ICommand m_RenameDeckCommand;
+		public ICommand RenameDeckCommand {
+			get => m_RenameDeckCommand;
+			set => SetProperty(ref m_RenameDeckCommand, value);
+		}
+
 		public TTSProjectViewModel() {
 			CreateNewDeck = new SimpleCommand((o) => AddNewDeck());
+			RenameDeckCommand = new SimpleCommand(RenameDeck);
+
+			DeckContextMenuItems = new List<MenuItem>() {
+				new MenuItem() { Header = "Rename", Command = RenameDeckCommand }
+			};
 		}
 
 		private void AddNewDeck() {
@@ -38,6 +58,12 @@ namespace TTS_CardTool.ViewModels {
 			if (config == null) return;
 
 			DeckList.Add(new DeckViewModel(config));
+		}
+
+		private void RenameDeck(object o) {
+			string newName = TextDialog.ShowDialog("Rename deck", "Type a new name for the deck");
+			if (string.IsNullOrWhiteSpace(newName)) return;
+			SelectedDeck.DeckConfig.DisplayName = newName;
 		}
 
 		public string ModuleName => "TTS_Project";

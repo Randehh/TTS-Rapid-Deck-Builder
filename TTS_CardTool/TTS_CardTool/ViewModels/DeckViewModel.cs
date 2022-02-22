@@ -219,8 +219,11 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		private void UploadToImgur(object o) {
-			ImgurLink = "Uploading...";
 			Task.Run(async () => {
+				ImgurLink = "Rendering...";
+				await DrawDeckPreview();
+
+				ImgurLink = "Uploading...";
 				string resultUrl = await ImgurUtilities.UploadImage(LOCAL_RENDER_FILE_NAME);
 				if (string.IsNullOrWhiteSpace(resultUrl)) {
 					ImgurLink = "Failed to upload.";

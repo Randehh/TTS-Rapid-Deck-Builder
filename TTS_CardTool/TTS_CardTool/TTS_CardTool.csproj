@@ -94,6 +94,7 @@
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="ProjectData\TTSProjectSerializer.cs" />
     <Compile Include="ProjectData\DeckSerializers.cs" />
+    <Compile Include="Utilities\BindingProxy.cs" />
     <Compile Include="Utilities\DrawingUtilities.cs" />
     <Compile Include="Utilities\ImgurUtilities.cs" />
     <Compile Include="ViewModels\DeckCardDisplayViewModel.cs" />
