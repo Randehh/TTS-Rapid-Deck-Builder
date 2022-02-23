@@ -29,11 +29,13 @@ namespace TTS_CardTool.ViewModels {
 		private Bitmap m_ImageBitmap;
 		private Bitmap m_CardBitmap;
 
+		private DeckSettingsViewModel m_SettingsVM;
+		public DeckSettingsViewModel SettingsVM => m_SettingsVM;
+
 		public DeckViewModel(DeckConfig config) {
 			DeckConfig = config;
 
-			m_ImageBitmap = new Bitmap(ImageWidth, ImageHeight);
-			m_CardBitmap = new Bitmap(CardWidth, CardHeight);
+			m_SettingsVM = new DeckSettingsViewModel(this);
 
 			UploadToImgurCommand = new SimpleCommand(UploadToImgur);
 			NewCardCommand = new SimpleCommand(AddNewCard, CanAddNewCard);
@@ -91,7 +93,7 @@ namespace TTS_CardTool.ViewModels {
 			set {
 				SetProperty(ref m_IsPreviewImageTabOpen, value);
 				if (value) {
-					Task.Run(DrawDeckPreview);
+					DrawDeckPreview();
 				}
 			}
 		}
@@ -163,7 +165,19 @@ namespace TTS_CardTool.ViewModels {
 			OnPropertyChanged(nameof(CardCountStatus));
 		}
 
-		private Task DrawDeckPreview() {
+		public void CreateBitmaps() {
+			m_ImageBitmap = new Bitmap(ImageWidth, ImageHeight);
+			m_CardBitmap = new Bitmap(CardWidth, CardHeight);
+
+			DrawDeckPreview();
+			DrawCardPreview();
+		}
+
+		private void DrawDeckPreview() {
+			Task.Run(DrawDeckPreviewTask);
+		}
+
+		private Task DrawDeckPreviewTask() {
 			IsRendering = true;
 
 			using (Graphics gfx = Graphics.FromImage(m_ImageBitmap)) {
@@ -198,7 +212,7 @@ namespace TTS_CardTool.ViewModels {
 		private Task DrawCardPreviewTask() {
 			if (SelectedCard == null) return Task.CompletedTask;
 
-			DrawingUtilities.DrawCard(m_CardBitmap, SelectedCard, CardWidth, CardHeight);
+			DrawingUtilities.DrawCard(m_CardBitmap, SelectedCard, CardWidth, CardHeight, customBackground: DeckConfig.CustomBackground);
 
 			Application.Current.Dispatcher.Invoke(() => {
 				SelectedCardBitmap = Imaging.CreateBitmapSourceFromHBitmap(m_CardBitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
@@ -215,13 +229,14 @@ namespace TTS_CardTool.ViewModels {
 				CardWidth,
 				CardHeight,
 				CardWidth * column,
-				CardHeight * row);
+				CardHeight * row,
+				DeckConfig.CustomBackground);
 		}
 
 		private void UploadToImgur(object o) {
 			Task.Run(async () => {
 				ImgurLink = "Rendering...";
-				await DrawDeckPreview();
+				await DrawDeckPreviewTask();
 
 				ImgurLink = "Uploading...";
 				string resultUrl = await ImgurUtilities.UploadImage(LOCAL_RENDER_FILE_NAME);

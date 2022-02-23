@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using TTS_CardTool.ViewModels;
 
 namespace TTS_CardTool.Utilities {
@@ -9,13 +11,19 @@ namespace TTS_CardTool.Utilities {
 		private static Font StartFont => new Font("Arial", 60);
 		private static SolidBrush CardBackgroundBrush => new SolidBrush(Color.Snow);
 
-		public static void DrawCard(Bitmap bitmap, IDeckCardViewModel card, float cardWidth, float cardHeight, float offsetX = 0, float offsetY = 0) {
+		public static void DrawCard(Bitmap bitmap, IDeckCardViewModel card, float cardWidth, float cardHeight, float offsetX = 0, float offsetY = 0, string customBackground = "") {
 			using (Graphics gfx = Graphics.FromImage(bitmap)) {
-				DrawCard(gfx, card, cardWidth, cardHeight, offsetX, offsetY);
+				DrawCard(gfx, card, cardWidth, cardHeight, offsetX, offsetY, customBackground);
+				gfx.Flush();
 			}
 		}
 
-		public static void DrawCard(Graphics gfx, IDeckCardViewModel card, float cardWidth, float cardHeight, float offsetX = 0, float offsetY = 0) {
+		public static void DrawCard(Graphics gfx, IDeckCardViewModel card, float cardWidth, float cardHeight, float offsetX = 0, float offsetY = 0, string customBackground = "") {
+			gfx.InterpolationMode = InterpolationMode.High;
+			gfx.SmoothingMode = SmoothingMode.HighQuality;
+			gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+			gfx.CompositingQuality = CompositingQuality.HighQuality;
+
 			RectangleF cardRect = new RectangleF(
 				offsetX,
 				offsetY,
@@ -23,8 +31,12 @@ namespace TTS_CardTool.Utilities {
 				cardHeight);
 
 			Rectangle fullCardRect = new Rectangle((int)cardRect.X, (int)cardRect.Y, (int)cardRect.Width, (int)cardRect.Height);
-			gfx.FillRectangle(CardBackgroundBrush, fullCardRect);
-			gfx.DrawRectangle(new Pen(Color.Black, 4), fullCardRect);
+			if (!string.IsNullOrWhiteSpace(customBackground)) {
+				gfx.DrawImage(Image.FromFile(customBackground), fullCardRect);
+			} else {
+				gfx.FillRectangle(CardBackgroundBrush, fullCardRect);
+				gfx.DrawRectangle(new Pen(Color.Black, 4), fullCardRect);
+			}
 
 			if (card != null) {
 				RectangleF cardRectMargins = AddMarginToRect(cardRect, CARD_MARGIN);
@@ -46,9 +58,13 @@ namespace TTS_CardTool.Utilities {
 
 			text = text.Replace(@"\n", "\n");
 			font = GetFontForText(gfx, text, font, region.Width);
-			SizeF titleSize = gfx.MeasureString(text, font, int.MaxValue);
-			RectangleF titleRect = GetCenteredRectangle(titleSize.Width, titleSize.Height, region, centerHorizontal:false);
-			gfx.DrawString(text, font, Brushes.Black, titleRect, stringFormat);
+			SizeF textSize = gfx.MeasureString(text, font, int.MaxValue);
+			RectangleF textRect = GetCenteredRectangle(textSize.Width, textSize.Height, region, centerHorizontal:false);
+
+			GraphicsPath path = new GraphicsPath();
+			path.AddString(text, font.FontFamily, (int)FontStyle.Regular, font.Size, textRect, stringFormat);
+			gfx.DrawPath(new Pen(Brushes.Black, 4), path);
+			gfx.FillPath(Brushes.White, path);
 		}
 
 		public static Font GetFontForText(Graphics gfx, string text, Font font, float width) {

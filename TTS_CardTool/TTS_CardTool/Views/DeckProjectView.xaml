@@ -15,10 +15,10 @@
 		<local:GameDeckList DataContext="{Binding}" Grid.Column="0"/>
 		<TabControl Grid.Column="2">
 			<TabItem Header="Card view">
-				<local:DeckGridView DataContext="{Binding SelectedDeck}"/>
+				<local:DeckGridView DataContext="{Binding SelectedDeck}" Margin="4"/>
 			</TabItem>
 			<TabItem Header="Preview image" DataContext="{Binding SelectedDeck}" IsSelected="{Binding IsPreviewImageTabOpen}">
-				<local:DeckImageView x:Name="DeckPreview" DataContext="{Binding}"/>
+				<local:DeckImageView x:Name="DeckPreview" DataContext="{Binding}" Margin="4"/>
 			</TabItem>
 		</TabControl> 
     </Grid>

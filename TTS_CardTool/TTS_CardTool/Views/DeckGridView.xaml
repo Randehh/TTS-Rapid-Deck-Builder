@@ -36,24 +36,34 @@
 			</Setter>
 		</Style>
 	</UserControl.Resources>
-    <StackPanel Orientation="Vertical">
-		<StackPanel Orientation="Horizontal">
-			<TextBlock Text="{Binding CardCountStatus}"/>
-		</StackPanel>
-		<Grid>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="4"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<local:DeckSettingsView DataContext="{Binding SettingsVM}" Grid.Row="0"/>
+		
+		<Grid Grid.Row="2">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="3*"/>
 				<ColumnDefinition Width="4"/>
-				<ColumnDefinition Width="*" MaxWidth="200"/>
+				<ColumnDefinition Width="*" MaxWidth="300"/>
 			</Grid.ColumnDefinitions>
 
 			<Grid Grid.Column="0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="7*"/>
+					<ColumnDefinition Width="192*"/>
+				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="*"/>
 					<RowDefinition Height="4"/>
 					<RowDefinition Height="auto"/>
 				</Grid.RowDefinitions>
-				
+
 				<DataGrid
 					ItemsSource="{Binding CardDisplayList}"
 					SelectedItem="{Binding SelectedCard}"
@@ -62,8 +72,7 @@
 					CanUserResizeRows="False"
 					ColumnWidth="*"
 					AutoGenerateColumns="False"
-					Margin="0,4,0,0"
-					Grid.Row="0">
+					Grid.Row="0" Grid.ColumnSpan="2">
 					<DataGrid.Resources>
 						<Style x:Key="{x:Type DataGridCell}" TargetType="{x:Type DataGridCell}">
 							<Setter Property="Background" Value="{x:Null}" />
@@ -122,12 +131,20 @@
 					</DataGrid.Columns>
 				</DataGrid>
 
-				<Button Content="New card" Command="{Binding NewCardCommand}" Grid.Row="2"/>
+				<Button Content="New card" Command="{Binding NewCardCommand}" Grid.Row="2" Grid.ColumnSpan="2"/>
 			</Grid>
 
-			<Grid Background="Gray" Grid.Column="2">
-				<Image Source="{Binding SelectedCardBitmap}" Margin="8"/>
+			<Grid Grid.Column="2">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto"/>
+					<RowDefinition Height="4"/>
+					<RowDefinition Height="*"/>
+				</Grid.RowDefinitions>
+
+				<Grid Grid.Row="0" Background="Gray">
+					<Image Source="{Binding SelectedCardBitmap}" Margin="8"/>
+				</Grid>
 			</Grid>
 		</Grid>
-	</StackPanel>
+	</Grid>
 </UserControl>

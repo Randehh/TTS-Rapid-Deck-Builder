@@ -23,6 +23,7 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_DisplayName, value);
 
 		}
+
 		private int m_Width;
 		public int Width {
 			get => m_Width;
@@ -33,6 +34,14 @@ namespace TTS_CardTool.ViewModels {
 		public int Height {
 			get => m_Height;
 			set => SetProperty(ref m_Height, value);
+		}
+
+		public bool HasCustomBackground => !string.IsNullOrWhiteSpace(CustomBackground);
+			
+		private string m_CustomBackground = "";
+		public string CustomBackground {
+			get => m_CustomBackground;
+			set => SetProperty(ref m_CustomBackground, value);
 		}
 
 		public DeckConfig Copy() {

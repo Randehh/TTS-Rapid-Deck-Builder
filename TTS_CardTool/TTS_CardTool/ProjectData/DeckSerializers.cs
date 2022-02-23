@@ -11,6 +11,7 @@ namespace TTS_CardTool.ProjectData {
 				DisplayName = document["name"]?.GetValue<string>(),
 				Width = document["width"]?.GetValue<int>() ?? 0,
 				Height = document["height"]?.GetValue<int>() ?? 0,
+				CustomBackground = document["background"]?.GetValue<string>(),
 			};
 
 			DeckViewModel vm = new DeckViewModel(config);
@@ -31,6 +32,7 @@ namespace TTS_CardTool.ProjectData {
 				["name"] = vm.DeckConfig.DisplayName,
 				["width"] = vm.DeckConfig.Width,
 				["height"] = vm.DeckConfig.Height,
+				["background"] = vm.DeckConfig.CustomBackground,
 				["cards"] = CreateCardList(vm)
 			};
 		}

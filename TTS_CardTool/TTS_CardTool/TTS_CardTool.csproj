@@ -95,12 +95,14 @@
     <Compile Include="ProjectData\TTSProjectSerializer.cs" />
     <Compile Include="ProjectData\DeckSerializers.cs" />
     <Compile Include="Utilities\BindingProxy.cs" />
+    <Compile Include="Utilities\BrowserUtilities.cs" />
     <Compile Include="Utilities\DrawingUtilities.cs" />
     <Compile Include="Utilities\ImgurUtilities.cs" />
     <Compile Include="ViewModels\DeckCardDisplayViewModel.cs" />
     <Compile Include="ViewModels\DeckCardViewModel.cs" />
     <Compile Include="ViewModels\DeckCreationDialogViewModel.cs" />
     <Compile Include="ViewModels\DeckConfig.cs" />
+    <Compile Include="ViewModels\DeckSettingsViewModel.cs" />
     <Compile Include="ViewModels\DeckViewModel.cs" />
     <Compile Include="ViewModels\IDeckCardViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
@@ -114,6 +116,9 @@
     </Compile>
     <Compile Include="Views\DeckProjectView.xaml.cs">
       <DependentUpon>DeckProjectView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DeckSettingsView.xaml.cs">
+      <DependentUpon>DeckSettingsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GameDeckList.xaml.cs">
       <DependentUpon>GameDeckList.xaml</DependentUpon>
@@ -145,6 +150,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DeckProjectView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DeckSettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
