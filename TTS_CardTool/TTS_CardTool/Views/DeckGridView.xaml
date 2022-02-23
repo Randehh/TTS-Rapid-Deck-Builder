@@ -113,12 +113,12 @@
 								</Grid.ColumnDefinitions>
 								<TextBlock Text="{Binding Count}" Grid.Column="0"/>
 								<Grid Grid.Column="1">
-									<Grid.RowDefinitions>
-										<RowDefinition Height="10"/>
-										<RowDefinition Height="10"/>
-									</Grid.RowDefinitions>
-									<Button Content=" ↑ " Grid.Row="0" Command="{Binding CountIncreaseCommand}" Style="{DynamicResource SmallButton}"/>
-									<Button Content=" ↓ " Grid.Row="1" Command="{Binding CountDecreaseCommand}" Style="{DynamicResource SmallButton}"/>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="20"/>
+										<ColumnDefinition Width="20"/>
+									</Grid.ColumnDefinitions>
+									<Button Content=" - " Grid.Column="0" Command="{Binding CountDecreaseCommand}"/>
+									<Button Content=" + " Grid.Column="1" Command="{Binding CountIncreaseCommand}"/>
 								</Grid>
 							</Grid>
 						</DataTemplate>
