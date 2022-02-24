@@ -12,7 +12,7 @@ namespace TTS_CardTool.Converters {
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-			return (Visibility)value == Visibility.Visible ? true : false;
+			return (Visibility)value == Visibility.Visible;
 		}
 	}
 }

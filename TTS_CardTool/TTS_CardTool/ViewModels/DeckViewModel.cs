@@ -1,13 +1,8 @@
 ﻿using RondoFramework.BaseClasses;
 using RondoFramework.ProjectManager;
-using System;
 using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using TTS_CardTool.Renderers;
 using TTS_CardTool.Utilities;
@@ -24,8 +19,8 @@ namespace TTS_CardTool.ViewModels {
 
 		public int ImageWidth => DeckConfig.Width;
 		public int ImageHeight => DeckConfig.Height;
-		public int CardWidth => ImageWidth / CARD_COUNT_HORIZONTAL;
-		public int CardHeight => ImageHeight / CARD_COUNT_VERTICAL;
+		public float CardWidth => (float)ImageWidth / CARD_COUNT_HORIZONTAL;
+		public float CardHeight => (float)ImageHeight / CARD_COUNT_VERTICAL;
 
 
 		private DeckSettingsViewModel m_SettingsVM;

@@ -47,7 +47,7 @@ namespace TTS_CardTool.Renderers {
 		}
 
 		public Task RenderCard(DeckViewModel deck, IDeckCardViewModel card) {
-			Bitmap bitmap = new Bitmap(deck.CardWidth, deck.CardHeight);
+			Bitmap bitmap = new Bitmap((int)deck.CardWidth, (int)deck.CardHeight);
 			using (Graphics gfx = Graphics.FromImage(bitmap)) {
 				DrawCard(gfx, deck, card);
 				gfx.Flush();
@@ -66,8 +66,8 @@ namespace TTS_CardTool.Renderers {
 			float offsetX = 0,
 			float offsetY = 0) {
 
-			int cardWidth = deck.CardWidth;
-			int cardHeight = deck.CardHeight;
+			float cardWidth = deck.CardWidth;
+			float cardHeight = deck.CardHeight;
 			string customBackground = deck.DeckConfig.CustomBackground;
 			string fontType = deck.DeckConfig.Font;
 
