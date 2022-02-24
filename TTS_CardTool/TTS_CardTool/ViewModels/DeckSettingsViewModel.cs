@@ -16,7 +16,7 @@ namespace TTS_CardTool.ViewModels {
 				SetProperty(ref m_SelectedDeckConfig, value);
 				m_Deck.DeckConfig.Width = SelectedDeckConfig.Width;
 				m_Deck.DeckConfig.Height = SelectedDeckConfig.Height;
-				m_Deck.CreateBitmaps();
+				m_Deck.InvokeRenderers();
 			}
 		}
 

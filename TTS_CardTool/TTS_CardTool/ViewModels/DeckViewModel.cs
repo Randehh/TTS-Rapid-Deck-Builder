@@ -9,31 +9,36 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using TTS_CardTool.Renderers;
 using TTS_CardTool.Utilities;
 
 namespace TTS_CardTool.ViewModels {
 	public class DeckViewModel : ViewModelBase, IProjectModule {
+		public const string LOCAL_RENDER_FILE_NAME = "render.png";
+		public const int CARD_COUNT_HORIZONTAL = 10;
+		public const int CARD_COUNT_VERTICAL = 7;
+
 		public string ModuleName => $"Deck_{DeckConfig.DisplayName}";
 
-		private const string LOCAL_RENDER_FILE_NAME = "render.png";
-		private const int CARD_COUNT_HORIZONTAL = 10;
-		private const int CARD_COUNT_VERTICAL = 7;
 		private const int MAX_CARD_COUNT = 69;
 
-		private int ImageWidth => DeckConfig.Width;
-		private int ImageHeight => DeckConfig.Height;
-		private int CardWidth => ImageWidth / CARD_COUNT_HORIZONTAL;
-		private int CardHeight => ImageHeight / CARD_COUNT_VERTICAL;
+		public int ImageWidth => DeckConfig.Width;
+		public int ImageHeight => DeckConfig.Height;
+		public int CardWidth => ImageWidth / CARD_COUNT_HORIZONTAL;
+		public int CardHeight => ImageHeight / CARD_COUNT_VERTICAL;
 
-
-		private Bitmap m_ImageBitmap;
-		private Bitmap m_CardBitmap;
 
 		private DeckSettingsViewModel m_SettingsVM;
 		public DeckSettingsViewModel SettingsVM => m_SettingsVM;
 
+		private ICardRenderer m_CardRenderer;
+
 		public DeckViewModel(DeckConfig config) {
 			DeckConfig = config;
+
+			m_CardRenderer = new WindowsCardRenderer();
+			m_CardRenderer.OnCardRendered += (card) => SelectedCardBitmap = card;
+			m_CardRenderer.OnDeckRendered += (deck) => PreviewDeckBitmap = deck;
 
 			m_SettingsVM = new DeckSettingsViewModel(this);
 
@@ -170,79 +175,23 @@ namespace TTS_CardTool.ViewModels {
 			OnPropertyChanged(nameof(CardCountStatus));
 		}
 
-		public void CreateBitmaps() {
-			m_ImageBitmap = new Bitmap(ImageWidth, ImageHeight);
-			m_CardBitmap = new Bitmap(CardWidth, CardHeight);
-
+		public void InvokeRenderers() {
 			DrawDeckPreview();
 			DrawCardPreview();
 		}
 
 		private void DrawDeckPreview() {
-			Task.Run(DrawDeckPreviewTask);
-		}
-
-		private Task DrawDeckPreviewTask() {
-			IsRendering = true;
-
-			using (Graphics gfx = Graphics.FromImage(m_ImageBitmap)) {
-				gfx.SmoothingMode = SmoothingMode.AntiAlias;
-				gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				gfx.CompositingQuality = CompositingQuality.HighQuality;
-
-				for (int row = 0; row < CARD_COUNT_VERTICAL; row++) {
-					for (int column = 0; column < CARD_COUNT_HORIZONTAL; column++) {
-						DrawCard(gfx, row, column);
-					}
-				}
-
-				gfx.Flush();
-			}
-
-			Application.Current.Dispatcher.Invoke(() => {
-				PreviewDeckBitmap = Imaging.CreateBitmapSourceFromHBitmap(m_ImageBitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-			});
-
-			m_ImageBitmap.Save(LOCAL_RENDER_FILE_NAME, System.Drawing.Imaging.ImageFormat.Png);
-
-			IsRendering = false;
-			return Task.CompletedTask;
+			Task.Run(async () => await m_CardRenderer.RenderDeck(this));
 		}
 
 		private void DrawCardPreview() {
-			Task.Run(DrawCardPreviewTask);
-		}
-
-		private Task DrawCardPreviewTask() {
-			if (SelectedCard == null) return Task.CompletedTask;
-
-			DrawingUtilities.DrawCard(m_CardBitmap, SelectedCard, CardWidth, CardHeight, DeckConfig.Font, customBackground: DeckConfig.CustomBackground);
-
-			Application.Current.Dispatcher.Invoke(() => {
-				SelectedCardBitmap = Imaging.CreateBitmapSourceFromHBitmap(m_CardBitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-			});
-
-			return Task.CompletedTask;
-		}
-
-		private void DrawCard(Graphics gfx, int row, int column) {
-			int cardIndex = column + (row * CARD_COUNT_HORIZONTAL);
-			DrawingUtilities.DrawCard(
-				gfx,
-				CardDisplayList.Count > cardIndex ? CardDisplayList[cardIndex] : null,
-				CardWidth,
-				CardHeight,
-				DeckConfig.Font,
-				CardWidth * column,
-				CardHeight * row,
-				DeckConfig.CustomBackground);
+			Task.Run(async () => await m_CardRenderer.RenderCard(this, SelectedCard));
 		}
 
 		private void UploadToImgur(object o) {
 			Task.Run(async () => {
 				ImgurLink = "Rendering...";
-				await DrawDeckPreviewTask();
+				DrawDeckPreview();
 
 				ImgurLink = "Uploading...";
 				string resultUrl = await ImgurUtilities.UploadImage(LOCAL_RENDER_FILE_NAME);
