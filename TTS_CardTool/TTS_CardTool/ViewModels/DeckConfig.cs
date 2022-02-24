@@ -59,6 +59,15 @@ namespace TTS_CardTool.ViewModels {
 			}
 		}
 
+		private int m_OutlineSize = 5;
+		public int OutlineSize {
+			get => m_OutlineSize;
+			set {
+				SetProperty(ref m_OutlineSize, value);
+				OnDeckUpdated();
+			}
+		}
+
 		public DeckConfig Copy() {
 			return new DeckConfig() {
 				DisplayName = DisplayName,

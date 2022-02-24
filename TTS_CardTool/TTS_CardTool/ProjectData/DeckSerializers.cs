@@ -12,6 +12,8 @@ namespace TTS_CardTool.ProjectData {
 				Width = document["width"]?.GetValue<int>() ?? 0,
 				Height = document["height"]?.GetValue<int>() ?? 0,
 				CustomBackground = document["background"]?.GetValue<string>(),
+				Font = document["font"]?.GetValue<string>() ?? "Arial",
+				OutlineSize = document["outline_size"]?.GetValue<int>() ?? 5,
 			};
 
 			DeckViewModel vm = new DeckViewModel(config);
@@ -33,6 +35,8 @@ namespace TTS_CardTool.ProjectData {
 				["width"] = vm.DeckConfig.Width,
 				["height"] = vm.DeckConfig.Height,
 				["background"] = vm.DeckConfig.CustomBackground,
+				["font"] = vm.DeckConfig.Font,
+				["outline_size"] = vm.DeckConfig.OutlineSize,
 				["cards"] = CreateCardList(vm)
 			};
 		}

@@ -97,12 +97,12 @@ namespace TTS_CardTool.Renderers {
 				RectangleF descriptionRegion = new RectangleF(cardRectMargins.X, cardRectMargins.Y + cardRectMargins.Height * 0.25f, cardRectMargins.Width, cardRectMargins.Height * 0.75f);
 
 				Font font = GetFont(fontType);
-				WriteStringInRegion(gfx, card.Title, titleRegion, font, DefaultStringFormat);
-				WriteStringInRegion(gfx, card.Description, descriptionRegion, font, DefaultStringFormat);
+				WriteStringInRegion(gfx, card.Title, titleRegion, font, deck.DeckConfig.OutlineSize, DefaultStringFormat);
+				WriteStringInRegion(gfx, card.Description, descriptionRegion, font, deck.DeckConfig.OutlineSize, DefaultStringFormat);
 			}
 		}
 
-		public void WriteStringInRegion(Graphics gfx, string text, RectangleF region, Font font, StringFormat stringFormat = null) {
+		public void WriteStringInRegion(Graphics gfx, string text, RectangleF region, Font font, int outlineSize, StringFormat stringFormat = null) {
 			if (string.IsNullOrWhiteSpace(text)) return;
 
 			if (stringFormat == null) {
@@ -116,7 +116,7 @@ namespace TTS_CardTool.Renderers {
 
 			GraphicsPath path = new GraphicsPath();
 			path.AddString(text, font.FontFamily, (int)System.Drawing.FontStyle.Regular, font.Size, textRect, stringFormat);
-			gfx.DrawPath(new Pen(Brushes.Black, 4), path);
+			gfx.DrawPath(new Pen(Brushes.Black, outlineSize), path);
 			gfx.FillPath(Brushes.White, path);
 		}
 

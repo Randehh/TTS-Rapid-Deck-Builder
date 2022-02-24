@@ -57,6 +57,16 @@ namespace TTS_CardTool.ViewModels {
 			set => m_Deck.DeckConfig.Font = value;
 		}
 
+		public string OutlineSize {
+			get => m_Deck.DeckConfig.OutlineSize.ToString();
+			set {
+				int result;
+				if(int.TryParse(value, out result)){
+					m_Deck.DeckConfig.OutlineSize = result;
+				}
+			}
+		}
+
 		public DeckSettingsViewModel(DeckViewModel deck) {
 			m_Deck = deck;
 			m_Deck.DeckConfig = deck.DeckConfig;
