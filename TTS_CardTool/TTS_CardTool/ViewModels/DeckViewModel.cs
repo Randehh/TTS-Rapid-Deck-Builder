@@ -1,5 +1,6 @@
 ﻿using RondoFramework.BaseClasses;
 using RondoFramework.ProjectManager;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -63,8 +64,8 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_CardList, value);
 		}
 
-		private ObservableCollection<IDeckCardViewModel> m_CardDisplayList = new ObservableCollection<IDeckCardViewModel>();
-		public ObservableCollection<IDeckCardViewModel> CardDisplayList {
+		private List<IDeckCardViewModel> m_CardDisplayList = new List<IDeckCardViewModel>();
+		public List<IDeckCardViewModel> CardDisplayList {
 			get => m_CardDisplayList;
 			set => SetProperty(ref m_CardDisplayList, value);
 		}
@@ -158,15 +159,15 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		private void UpdateDisplayList() {
-			CardDisplayList.Clear();
+			List<IDeckCardViewModel> displayList = new List<IDeckCardViewModel>();
 			foreach (DeckCardViewModel card in CardList) {
-				CardDisplayList.Add(card);
+				displayList.Add(card);
 
 				for (int i = 1; i < card.Count; i++) {
-					CardDisplayList.Add(new DeckCardDisplayViewModel(card, true));
+					displayList.Add(new DeckCardDisplayViewModel(card, true));
 				}
 			}
-			OnPropertyChanged(nameof(CardDisplayList));
+			CardDisplayList = displayList;
 			OnPropertyChanged(nameof(CardCountStatus));
 		}
 
