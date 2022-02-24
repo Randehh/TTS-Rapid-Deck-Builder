@@ -47,10 +47,15 @@ namespace TTS_CardTool.ViewModels {
 		private DeckConfig m_DeckConfig;
 		public DeckConfig DeckConfig {
 			get => m_DeckConfig;
-			set => SetProperty(ref m_DeckConfig, value);
+			set {
+				if (m_DeckConfig != null) m_DeckConfig.OnDeckUpdated -= DrawCardPreview;
+				SetProperty(ref m_DeckConfig, value);
+				DrawCardPreview();
+				if (m_DeckConfig != null) m_DeckConfig.OnDeckUpdated += DrawCardPreview;
+			}
 		}
 
-		public string CardCountStatus => $"Cards in deck: {CardDisplayList.Count}/{MAX_CARD_COUNT}";
+		public string CardCountStatus => $"{CardDisplayList.Count}/{MAX_CARD_COUNT}";
 
 		private ObservableCollection<DeckCardViewModel> m_CardList = new ObservableCollection<DeckCardViewModel>();
 		public ObservableCollection<DeckCardViewModel> CardList {
@@ -212,7 +217,7 @@ namespace TTS_CardTool.ViewModels {
 		private Task DrawCardPreviewTask() {
 			if (SelectedCard == null) return Task.CompletedTask;
 
-			DrawingUtilities.DrawCard(m_CardBitmap, SelectedCard, CardWidth, CardHeight, customBackground: DeckConfig.CustomBackground);
+			DrawingUtilities.DrawCard(m_CardBitmap, SelectedCard, CardWidth, CardHeight, DeckConfig.Font, customBackground: DeckConfig.CustomBackground);
 
 			Application.Current.Dispatcher.Invoke(() => {
 				SelectedCardBitmap = Imaging.CreateBitmapSourceFromHBitmap(m_CardBitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
@@ -228,6 +233,7 @@ namespace TTS_CardTool.ViewModels {
 				CardDisplayList.Count > cardIndex ? CardDisplayList[cardIndex] : null,
 				CardWidth,
 				CardHeight,
+				DeckConfig.Font,
 				CardWidth * column,
 				CardHeight * row,
 				DeckConfig.CustomBackground);

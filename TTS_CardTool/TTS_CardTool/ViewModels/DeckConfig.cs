@@ -1,4 +1,5 @@
 ﻿using RondoFramework.BaseClasses;
+using System;
 using System.Collections.Generic;
 
 namespace TTS_CardTool.ViewModels {
@@ -16,6 +17,8 @@ namespace TTS_CardTool.ViewModels {
 			}
 			return m_CachedList;
 		}
+
+		public Action OnDeckUpdated { get; set; } = delegate { };
 
 		private string m_DisplayName;
 		public string DisplayName {
@@ -41,7 +44,19 @@ namespace TTS_CardTool.ViewModels {
 		private string m_CustomBackground = "";
 		public string CustomBackground {
 			get => m_CustomBackground;
-			set => SetProperty(ref m_CustomBackground, value);
+			set {
+				SetProperty(ref m_CustomBackground, value);
+				OnDeckUpdated();
+			}
+		}
+
+		private string m_Font = "Arial";
+		public string Font {
+			get => m_Font;
+			set {
+				SetProperty(ref m_Font, value);
+				OnDeckUpdated();
+			}
 		}
 
 		public DeckConfig Copy() {

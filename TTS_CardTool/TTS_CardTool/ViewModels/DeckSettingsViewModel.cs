@@ -1,5 +1,6 @@
 ﻿using RondoFramework.BaseClasses;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Windows.Input;
 using TTS_CardTool.Utilities;
@@ -20,6 +21,10 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		private DeckViewModel m_Deck;
+		public DeckViewModel Deck {
+			get => m_Deck;
+			set => m_Deck = value;
+		}
 
 		public string Name {
 			get => m_Deck.DeckConfig.DisplayName;
@@ -41,6 +46,17 @@ namespace TTS_CardTool.ViewModels {
 			}
 		}
 
+		private List<string> m_FontList = new List<string>();
+		public List<string> FontList {
+			get => m_FontList;
+			set => SetProperty(ref m_FontList, value);
+		}
+
+		public string Font {
+			get => m_Deck.DeckConfig.Font;
+			set => m_Deck.DeckConfig.Font = value;
+		}
+
 		public DeckSettingsViewModel(DeckViewModel deck) {
 			m_Deck = deck;
 			m_Deck.DeckConfig = deck.DeckConfig;
@@ -52,6 +68,12 @@ namespace TTS_CardTool.ViewModels {
 				}
 			}
 
+			List<string> fonts = new List<string>();
+			foreach (FontFamily font in FontFamily.Families) {
+				fonts.Add(font.Name);
+			}
+			FontList = fonts;
+
 			BrowseBackgroundCommand = new SimpleCommand(BrowseBackground);
 		}
 
@@ -61,6 +83,7 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		private bool IsBackgroundValid(string imagePath) {
+			if (string.IsNullOrWhiteSpace(imagePath)) return true;
 			if (!File.Exists(imagePath)) return false;
 			return true;
 		}

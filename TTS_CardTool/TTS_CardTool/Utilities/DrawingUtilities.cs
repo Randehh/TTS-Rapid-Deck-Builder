@@ -8,17 +8,33 @@ namespace TTS_CardTool.Utilities {
 
 		private const int CARD_MARGIN = 16;
 		private static StringFormat DefaultStringFormat => new StringFormat() { Alignment = StringAlignment.Center };
-		private static Font StartFont => new Font("Arial", 60);
+		private static Font GetFont(string font) => new Font(font, 60);
 		private static SolidBrush CardBackgroundBrush => new SolidBrush(Color.Snow);
 
-		public static void DrawCard(Bitmap bitmap, IDeckCardViewModel card, float cardWidth, float cardHeight, float offsetX = 0, float offsetY = 0, string customBackground = "") {
+		public static void DrawCard(
+			Bitmap bitmap,
+			IDeckCardViewModel card,
+			float cardWidth,
+			float cardHeight,
+			string fontType,
+			float offsetX = 0,
+			float offsetY = 0,
+			string customBackground = "") {
 			using (Graphics gfx = Graphics.FromImage(bitmap)) {
-				DrawCard(gfx, card, cardWidth, cardHeight, offsetX, offsetY, customBackground);
+				DrawCard(gfx, card, cardWidth, cardHeight, fontType, offsetX, offsetY, customBackground);
 				gfx.Flush();
 			}
 		}
 
-		public static void DrawCard(Graphics gfx, IDeckCardViewModel card, float cardWidth, float cardHeight, float offsetX = 0, float offsetY = 0, string customBackground = "") {
+		public static void DrawCard(
+			Graphics gfx,
+			IDeckCardViewModel card,
+			float cardWidth,
+			float cardHeight,
+			string fontType,
+			float offsetX = 0,
+			float offsetY = 0,
+			string customBackground = "") {
 			gfx.InterpolationMode = InterpolationMode.High;
 			gfx.SmoothingMode = SmoothingMode.HighQuality;
 			gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
@@ -44,8 +60,9 @@ namespace TTS_CardTool.Utilities {
 				RectangleF titleRegion = new RectangleF(cardRectMargins.X, cardRectMargins.Y, cardRectMargins.Width, cardRectMargins.Height * 0.25f);
 				RectangleF descriptionRegion = new RectangleF(cardRectMargins.X, cardRectMargins.Y + cardRectMargins.Height * 0.25f, cardRectMargins.Width, cardRectMargins.Height * 0.75f);
 
-				WriteStringInRegion(gfx, card.Title, titleRegion, StartFont, DefaultStringFormat);
-				WriteStringInRegion(gfx, card.Description, descriptionRegion, StartFont, DefaultStringFormat);
+				Font font = GetFont(fontType);
+				WriteStringInRegion(gfx, card.Title, titleRegion, font, DefaultStringFormat);
+				WriteStringInRegion(gfx, card.Description, descriptionRegion, font, DefaultStringFormat);
 			}
 		}
 

@@ -44,8 +44,10 @@
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
 
-		<local:DeckSettingsView DataContext="{Binding SettingsVM}" Grid.Row="0"/>
-		
+		<Grid Grid.Row="0">
+			<local:DeckSettingsView DataContext="{Binding SettingsVM}" Grid.Column="0"/>
+		</Grid>
+
 		<Grid Grid.Row="2">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="3*"/>
