@@ -38,6 +38,12 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_CreateNewDeck, value);
 		}
 
+		private ICommand m_RemoveDeck;
+		public ICommand RemoveDeckCommand {
+			get => m_RemoveDeck;
+			set => SetProperty(ref m_RemoveDeck, value);
+		}
+
 		private ICommand m_RenameDeckCommand;
 		public ICommand RenameDeckCommand {
 			get => m_RenameDeckCommand;
@@ -46,6 +52,7 @@ namespace TTS_CardTool.ViewModels {
 
 		public TTSProjectViewModel() {
 			CreateNewDeck = new SimpleCommand((o) => AddNewDeck());
+			RemoveDeckCommand = new SimpleCommand(RemoveDeck);
 			RenameDeckCommand = new SimpleCommand(RenameDeck);
 
 			DeckContextMenuItems = new List<MenuItem>() {
@@ -58,6 +65,11 @@ namespace TTS_CardTool.ViewModels {
 			if (config == null) return;
 
 			DeckList.Add(new DeckViewModel(config));
+		}
+
+		private void RemoveDeck(object o) {
+			DeckViewModel deck = o as DeckViewModel;
+			DeckList.Remove(deck);
 		}
 
 		private void RenameDeck(object o) {
