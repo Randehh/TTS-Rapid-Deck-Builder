@@ -63,46 +63,48 @@ namespace TTS_CardTool.Renderers {
 		}
 
 		public void ProcessRenderDeck(DeckViewModel deck, string filePath = "") {
-			Bitmap bitmap = new Bitmap(deck.ImageWidth, deck.ImageHeight);
-			using (Graphics gfx = Graphics.FromImage(bitmap)) {
-				for (int row = 0; row < DeckViewModel.CARD_COUNT_VERTICAL; row++) {
-					for (int column = 0; column < DeckViewModel.CARD_COUNT_HORIZONTAL; column++) {
-						int cardIndex = column + (row * DeckViewModel.CARD_COUNT_HORIZONTAL);
-						DrawCard(
-							gfx,
-							deck,
-							deck.CardDisplayList.Count > cardIndex ? deck.CardDisplayList[cardIndex] : null,
-							deck.CardWidth * column,
-							deck.CardHeight * row);
+			using (Bitmap bitmap = new Bitmap(deck.ImageWidth, deck.ImageHeight)) {
+				using (Graphics gfx = Graphics.FromImage(bitmap)) {
+					for (int row = 0; row < DeckViewModel.CARD_COUNT_VERTICAL; row++) {
+						for (int column = 0; column < DeckViewModel.CARD_COUNT_HORIZONTAL; column++) {
+							int cardIndex = column + (row * DeckViewModel.CARD_COUNT_HORIZONTAL);
+							DrawCard(
+								gfx,
+								deck,
+								deck.CardDisplayList.Count > cardIndex ? deck.CardDisplayList[cardIndex] : null,
+								deck.CardWidth * column,
+								deck.CardHeight * row);
+						}
 					}
+
+					gfx.Flush();
 				}
 
-				gfx.Flush();
-			}
+				if (!string.IsNullOrEmpty(filePath)) {
+					bitmap.Save(filePath, ImageFormat.Png);
+				}
 
-			if (!string.IsNullOrEmpty(filePath)) {
-				bitmap.Save(filePath, ImageFormat.Png);
+				Application.Current.Dispatcher.Invoke(() => {
+					OnDeckRendered(Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions()));
+				});
 			}
-
-			Application.Current.Dispatcher.Invoke(() => {
-				OnDeckRendered(Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions()));
-			});
 		}
 
 		public void ProcessRenderCard(DeckViewModel deck, IDeckCardViewModel card, string filePath = "") {
-			Bitmap bitmap = new Bitmap((int)deck.CardWidth, (int)deck.CardHeight);
-			using (Graphics gfx = Graphics.FromImage(bitmap)) {
-				DrawCard(gfx, deck, card);
-				gfx.Flush();
-			}
+			using (Bitmap bitmap = new Bitmap((int)deck.CardWidth, (int)deck.CardHeight)) {
+				using (Graphics gfx = Graphics.FromImage(bitmap)) {
+					DrawCard(gfx, deck, card);
+					gfx.Flush();
+				}
 
-			if (!string.IsNullOrEmpty(filePath)) {
-				bitmap.Save(filePath, ImageFormat.Png);
-			}
+				if (!string.IsNullOrEmpty(filePath)) {
+					bitmap.Save(filePath, ImageFormat.Png);
+				}
 
-			Application.Current.Dispatcher.Invoke(() => {
-				OnCardRendered(Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions()));
-			});
+				Application.Current.Dispatcher.Invoke(() => {
+					OnCardRendered(Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions()));
+				});
+			}
 		}
 
 		public void DrawCard(
