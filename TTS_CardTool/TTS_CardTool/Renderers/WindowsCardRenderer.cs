@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
@@ -19,7 +22,47 @@ namespace TTS_CardTool.Renderers {
 		public Action<BitmapSource> OnDeckRendered { get; set; } = delegate { };
 		public Action<BitmapSource> OnCardRendered { get; set; } = delegate { };
 
-		public Task RenderDeck(DeckViewModel deck) {
+		private Thread m_RenderThread;
+		private BlockingCollection<RenderRequest> m_RenderQueue = new BlockingCollection<RenderRequest>();
+
+		public WindowsCardRenderer() {
+			m_RenderThread = new Thread(RenderProcess) {
+				IsBackground = true,
+				Name = "Render thread",
+			};
+			m_RenderThread.Start();
+		}
+
+		~WindowsCardRenderer() {
+			m_RenderThread.Abort();
+		}
+
+		private void RenderProcess() {
+			foreach(RenderRequest request in m_RenderQueue.GetConsumingEnumerable()) {
+				if(request.Card != null) {
+					ProcessRenderCard(request.Deck, request.Card, request.FilePath);
+				} else {
+					ProcessRenderDeck(request.Deck, request.FilePath);
+				}
+			}
+		}
+
+		public void RenderDeck(DeckViewModel deck, string filePath = "") {
+			m_RenderQueue.Add(new RenderRequest() {
+				Deck = deck,
+				FilePath = filePath,
+			});
+		}
+
+		public void RenderCard(DeckViewModel deck, IDeckCardViewModel card, string filePath = "") {
+			m_RenderQueue.Add(new RenderRequest() {
+				Deck = deck,
+				Card = card,
+				FilePath = filePath,
+			});
+		}
+
+		public void ProcessRenderDeck(DeckViewModel deck, string filePath = "") {
 			Bitmap bitmap = new Bitmap(deck.ImageWidth, deck.ImageHeight);
 			using (Graphics gfx = Graphics.FromImage(bitmap)) {
 				for (int row = 0; row < DeckViewModel.CARD_COUNT_VERTICAL; row++) {
@@ -37,25 +80,29 @@ namespace TTS_CardTool.Renderers {
 				gfx.Flush();
 			}
 
+			if (!string.IsNullOrEmpty(filePath)) {
+				bitmap.Save(filePath, ImageFormat.Png);
+			}
+
 			Application.Current.Dispatcher.Invoke(() => {
 				OnDeckRendered(Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions()));
 			});
-
-			bitmap.Save(DeckViewModel.LOCAL_RENDER_FILE_NAME, ImageFormat.Png);
-			return Task.CompletedTask;
 		}
 
-		public Task RenderCard(DeckViewModel deck, IDeckCardViewModel card) {
+		public void ProcessRenderCard(DeckViewModel deck, IDeckCardViewModel card, string filePath = "") {
 			Bitmap bitmap = new Bitmap((int)deck.CardWidth, (int)deck.CardHeight);
 			using (Graphics gfx = Graphics.FromImage(bitmap)) {
 				DrawCard(gfx, deck, card);
 				gfx.Flush();
 			}
 
+			if (!string.IsNullOrEmpty(filePath)) {
+				bitmap.Save(filePath, ImageFormat.Png);
+			}
+
 			Application.Current.Dispatcher.Invoke(() => {
 				OnCardRendered(Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions()));
 			});
-			return Task.CompletedTask;
 		}
 
 		public void DrawCard(
@@ -145,6 +192,12 @@ namespace TTS_CardTool.Renderers {
 							rect.Y + margin,
 							rect.Width - (margin * 2),
 							rect.Height - (margin * 2));
+		}
+
+		private class RenderRequest {
+			public DeckViewModel Deck { get; set; }
+			public IDeckCardViewModel Card { get; set; }
+			public string FilePath { get; set; }
 		}
 	}
 }

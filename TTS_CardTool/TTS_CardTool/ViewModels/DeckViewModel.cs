@@ -1,7 +1,9 @@
 ﻿using RondoFramework.BaseClasses;
 using RondoFramework.ProjectManager;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -10,7 +12,7 @@ using TTS_CardTool.Utilities;
 
 namespace TTS_CardTool.ViewModels {
 	public class DeckViewModel : ViewModelBase, IProjectModule {
-		public const string LOCAL_RENDER_FILE_NAME = "render.png";
+		public const string RENDER_FOLDER = "DeckRenders";
 		public const int CARD_COUNT_HORIZONTAL = 10;
 		public const int CARD_COUNT_VERTICAL = 7;
 
@@ -29,12 +31,14 @@ namespace TTS_CardTool.ViewModels {
 
 		private ICardRenderer m_CardRenderer;
 
-		public DeckViewModel(DeckConfig config) {
-			DeckConfig = config;
+		private string m_UploadFileName;
 
+		public DeckViewModel(DeckConfig config) {
 			m_CardRenderer = new WindowsCardRenderer();
 			m_CardRenderer.OnCardRendered += (card) => SelectedCardBitmap = card;
-			m_CardRenderer.OnDeckRendered += (deck) => PreviewDeckBitmap = deck;
+			m_CardRenderer.OnDeckRendered += OnDeckRendered;
+
+			DeckConfig = config;
 
 			m_SettingsVM = new DeckSettingsViewModel(this);
 
@@ -177,26 +181,38 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		private void DrawDeckPreview() {
-			Task.Run(async () => await m_CardRenderer.RenderDeck(this));
+			m_CardRenderer.RenderDeck(this);
 		}
 
 		private void DrawCardPreview() {
-			Task.Run(async () => await m_CardRenderer.RenderCard(this, SelectedCard));
+			m_CardRenderer.RenderCard(this, SelectedCard);
+		}
+
+		private void OnDeckRendered(BitmapSource bitmapSource) {
+			PreviewDeckBitmap = bitmapSource;
+
+			if (!string.IsNullOrWhiteSpace(m_UploadFileName) && File.Exists(m_UploadFileName)) {
+				string fileName = m_UploadFileName;
+				m_UploadFileName = "";
+				ImgurLink = "Uploading...";
+				Task.Run(async () => {
+					string resultUrl = await ImgurUtilities.UploadImage(fileName);
+					if (string.IsNullOrWhiteSpace(resultUrl)) {
+						ImgurLink = "Failed to upload.";
+					} else {
+						ImgurLink = resultUrl;
+					}
+				});
+			}
 		}
 
 		private void UploadToImgur(object o) {
-			Task.Run(async () => {
-				ImgurLink = "Rendering...";
-				DrawDeckPreview();
-
-				ImgurLink = "Uploading...";
-				string resultUrl = await ImgurUtilities.UploadImage(LOCAL_RENDER_FILE_NAME);
-				if (string.IsNullOrWhiteSpace(resultUrl)) {
-					ImgurLink = "Failed to upload.";
-				} else {
-					ImgurLink = resultUrl;
-				}
-			});
+			if (!Directory.Exists(RENDER_FOLDER)) {
+				Directory.CreateDirectory(RENDER_FOLDER);
+			}
+			ImgurLink = "Rendering...";
+			m_UploadFileName = Path.Combine(RENDER_FOLDER, $"{Guid.NewGuid()}.png");
+			m_CardRenderer.RenderDeck(this, m_UploadFileName);
 		}
 	}
 }
