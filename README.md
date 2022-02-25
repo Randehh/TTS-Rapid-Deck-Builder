@@ -16,3 +16,4 @@ Current features:
 If you enjoyed using this tool, please consider donating a Ko-fi: [Ko-fi link](https://ko-fi.com/rondo_dev)
 
 ![image](https://user-images.githubusercontent.com/831493/155795995-27868769-cae3-4ea2-b587-6e6e0d48eabb.png)
+![image](https://user-images.githubusercontent.com/831493/155799683-5c64e465-40a1-40f1-a3bc-8a5c81c7c833.png)
