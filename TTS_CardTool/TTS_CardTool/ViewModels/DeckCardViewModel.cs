@@ -43,7 +43,10 @@ namespace TTS_CardTool.ViewModels {
 		private int m_Count = 1;
 		public int Count {
 			get => m_Count;
-			set => SetProperty(ref m_Count, value);
+			set {
+				OnCountUpdated(this, m_Count, value);
+				SetProperty(ref m_Count, value);
+			}
 		}
 
 		private bool m_IsChild = false;
@@ -53,5 +56,6 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		public Action OnCardUpdated { get; set; } = delegate { };
+		public Action<DeckCardViewModel, int, int> OnCountUpdated { get; set; } = delegate { };
 	}
 }

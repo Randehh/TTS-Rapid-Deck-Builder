@@ -3,6 +3,7 @@ using RondoFramework.ProjectManager;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -68,8 +69,8 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_CardList, value);
 		}
 
-		private List<IDeckCardViewModel> m_CardDisplayList = new List<IDeckCardViewModel>();
-		public List<IDeckCardViewModel> CardDisplayList {
+		private ObservableCollection<IDeckCardViewModel> m_CardDisplayList = new ObservableCollection<IDeckCardViewModel>();
+		public ObservableCollection<IDeckCardViewModel> CardDisplayList {
 			get => m_CardDisplayList;
 			set => SetProperty(ref m_CardDisplayList, value);
 		}
@@ -141,7 +142,7 @@ namespace TTS_CardTool.ViewModels {
 		public void AddNewCard(object o) {
 			DeckCardViewModel newCard = o == null ? new DeckCardViewModel() : o as DeckCardViewModel;
 			m_CardList.Add(newCard);
-			newCard.PropertyChanged += OnCardDataUpdated;
+			newCard.OnCountUpdated += OnCardCountUpdated;
 		}
 
 		private bool CanAddNewCard() {
@@ -150,28 +151,44 @@ namespace TTS_CardTool.ViewModels {
 
 		private void RemoveCard(object o) {
 			DeckCardViewModel card = o as DeckCardViewModel;
-			card.PropertyChanged += OnCardDataUpdated;
+			card.OnCountUpdated -= OnCardCountUpdated;
 			m_CardList.Remove(card);
 		}
 
-		private void OnCardDataUpdated(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
-			UpdateDisplayList();
-		}
-
-		private void OnCardListChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) {
-			UpdateDisplayList();
-		}
-
-		private void UpdateDisplayList() {
-			List<IDeckCardViewModel> displayList = new List<IDeckCardViewModel>();
-			foreach (DeckCardViewModel card in CardList) {
-				displayList.Add(card);
-
-				for (int i = 1; i < card.Count; i++) {
-					displayList.Add(new DeckCardDisplayViewModel(card, true));
-				}
+		private void OnCardCountUpdated(DeckCardViewModel card, int oldValue, int newValue) {
+			int index = CardDisplayList.IndexOf(card);
+			if(oldValue > newValue) {
+				CardDisplayList.RemoveAt(index + 1);
+			} else {
+				CardDisplayList.Insert(index + 1, new DeckCardDisplayViewModel(card, true));
 			}
-			CardDisplayList = displayList;
+		}
+
+		private void OnCardListChanged(object sender, NotifyCollectionChangedEventArgs e) {
+			DeckCardViewModel card;
+			switch (e.Action) {
+				case NotifyCollectionChangedAction.Add:
+					card = e.NewItems[0] as DeckCardViewModel;
+					CardDisplayList.Add(card);
+					for(int i = 0; i < card.Count - 1; i++) {
+						DeckCardDisplayViewModel vm = new DeckCardDisplayViewModel(card, true);
+						CardDisplayList.Add(vm);
+					}
+					break;
+
+				case NotifyCollectionChangedAction.Remove:
+					card = e.OldItems[0] as DeckCardViewModel;
+					CardDisplayList.Remove(card);
+					while(CardDisplayList.Count > e.OldStartingIndex && CardDisplayList[e.OldStartingIndex] is DeckCardDisplayViewModel displayViewModel) {
+						CardDisplayList.Remove(displayViewModel);
+					}
+					break;
+
+				case NotifyCollectionChangedAction.Reset:
+					CardDisplayList.Clear();
+					break;
+
+			}
 			OnPropertyChanged(nameof(CardCountStatus));
 		}
 

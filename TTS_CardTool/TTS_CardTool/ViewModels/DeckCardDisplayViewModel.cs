@@ -7,6 +7,16 @@ namespace TTS_CardTool.ViewModels {
 		public DeckCardDisplayViewModel(DeckCardViewModel referenceCard, bool isChild) {
 			m_ReferenceCard = referenceCard;
 			IsChild = isChild;
+
+			referenceCard.PropertyChanged += ReferenceCard_PropertyChanged;
+		}
+
+		~DeckCardDisplayViewModel() {
+			m_ReferenceCard.PropertyChanged -= ReferenceCard_PropertyChanged;
+		}
+
+		private void ReferenceCard_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
+			OnPropertyChanged(e.PropertyName);
 		}
 
 		private DeckCardViewModel m_ReferenceCard;

@@ -74,6 +74,7 @@
 					CanUserResizeRows="False"
 					ColumnWidth="*"
 					AutoGenerateColumns="False"
+					CanUserSortColumns="False"
 					Grid.Row="0" Grid.ColumnSpan="2">
 					<DataGrid.Resources>
 						<Style x:Key="{x:Type DataGridCell}" TargetType="{x:Type DataGridCell}">
