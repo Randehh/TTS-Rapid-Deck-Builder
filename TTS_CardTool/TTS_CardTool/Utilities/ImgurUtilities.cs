@@ -9,7 +9,7 @@ namespace TTS_CardTool.Utilities {
 	public class ImgurUtilities {
 
 		public static async Task<string> UploadImage(string path) {
-			ApiClient apiClient = new ApiClient("0c24ab036ee360eff11ce3988e1ca81c6e2d88a4");
+			ApiClient apiClient = new ApiClient("341180929098ea2927492e3cf264f35adab3fd57");
 			HttpClient httpClient = new HttpClient();
 			IImage result = null;
 
