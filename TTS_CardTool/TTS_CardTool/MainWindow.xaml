@@ -30,6 +30,7 @@
 					</MenuItem>
 					<MenuItem Header="_Save" Command="{Binding SaveProjectCommand}"/>
 				</MenuItem>
+				<MenuItem Header="_About" Command="{Binding AboutCommand}"/>
 			</Menu>
 		</DockPanel>
 		<views:DeckProjectView DataContext="{Binding LoadedProject}" Grid.Row="1" Margin="4"/>

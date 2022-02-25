@@ -44,6 +44,12 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_SaveProjectCommand, value);
 		}
 
+		private SimpleCommand m_AboutCommand;
+		public SimpleCommand AboutCommand {
+			get => m_AboutCommand;
+			set => SetProperty(ref m_AboutCommand, value);
+		}
+
 		private List<RecentFile> m_RecentFiles;
 		public List<RecentFile> RecentFiles {
 			get => m_RecentFiles;
@@ -51,10 +57,11 @@ namespace TTS_CardTool.ViewModels {
 		}
 
 		public MainWindowViewModel() {
-			NewProjectCommand = new SimpleCommand((o) => { CreateNewProject(); });
-			OpenProjectCommand = new SimpleCommand((o) => { LoadProject(); });
+			NewProjectCommand = new SimpleCommand((o) => CreateNewProject());
+			OpenProjectCommand = new SimpleCommand((o) => LoadProject());
 			OpenRecentProjectCommand = new SimpleCommand((o) => LoadProject(o as RecentFile));
-			SaveProjectCommand = new SimpleCommand((o) => { SaveProject(); }, () => ProjectData != null);
+			SaveProjectCommand = new SimpleCommand((o) => SaveProject(), () => ProjectData != null);
+			AboutCommand = new SimpleCommand((o) => ShowAboutDialog());
 
 			m_ProjectManager = new ProjectManager();
 
@@ -145,6 +152,13 @@ namespace TTS_CardTool.ViewModels {
 
 		private void UpdateRecentlyOpenedFiles() {
 			RecentFiles = m_RecentFilesTracker.RecentlyOpenedFiles;
+		}
+
+		private void ShowAboutDialog() {
+			AboutDialog dialog = new AboutDialog() {
+				Owner = System.Windows.Application.Current.MainWindow
+			};
+			dialog.ShowDialog();
 		}
 	}
 }
