@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32106.194
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTS_CardTool", "TTS_CardTool\TTS_CardTool.csproj", "{7F65DD98-7B0B-4CFF-86B1-9B3CBE38AA54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RondoFramework", "..\..\RondoFramework\RondoFramework\RondoFramework.csproj", "{93422009-B7C3-402E-9B04-29E97DEC6AB6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RondoFramework", "..\..\Rondo-WPF-Framework\RondoFramework\RondoFramework.csproj", "{93422009-B7C3-402E-9B04-29E97DEC6AB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
