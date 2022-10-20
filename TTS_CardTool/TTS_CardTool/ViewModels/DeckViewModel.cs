@@ -6,10 +6,13 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using TTS_CardTool.Renderers;
 using TTS_CardTool.Utilities;
+using TTS_CardTool.ViewModels.DeckElements;
 
 namespace TTS_CardTool.ViewModels {
 	public class DeckViewModel : ViewModelBase, IProjectModule {
@@ -34,6 +37,8 @@ namespace TTS_CardTool.ViewModels {
 
 		private string m_UploadFileName;
 
+		public DataGrid DeckGridControl { get; set; }
+
 		public DeckViewModel(DeckConfig config) {
 			m_CardRenderer = new WindowsCardRenderer();
 			m_CardRenderer.OnCardRendered += (card) => SelectedCardBitmap = card;
@@ -54,10 +59,10 @@ namespace TTS_CardTool.ViewModels {
 		public DeckConfig DeckConfig {
 			get => m_DeckConfig;
 			set {
-				if (m_DeckConfig != null) m_DeckConfig.OnDeckUpdated -= DrawCardPreview;
+				if (m_DeckConfig != null) m_DeckConfig.OnDeckUpdated -= OnDeckUpdated;
 				SetProperty(ref m_DeckConfig, value);
-				DrawCardPreview();
-				if (m_DeckConfig != null) m_DeckConfig.OnDeckUpdated += DrawCardPreview;
+				OnDeckUpdated();
+				if (m_DeckConfig != null) m_DeckConfig.OnDeckUpdated += OnDeckUpdated;
 			}
 		}
 
@@ -137,6 +142,32 @@ namespace TTS_CardTool.ViewModels {
 		public string ImgurLink {
 			get => m_ImgurLink;
 			set => SetProperty(ref m_ImgurLink, value);
+		}
+
+		private void OnDeckUpdated() {
+			GenerateGridColumns();
+			DrawCardPreview();
+        }
+
+		public void GenerateGridColumns() {
+			if (DeckGridControl == null) return;
+
+			for(int i = DeckGridControl.Columns.Count -1; i >= 0; i--) {
+				DataGridColumn column = DeckGridControl.Columns[i];
+				if(!(column is DataGridTemplateColumn)) {
+					DeckGridControl.Columns.Remove(column);
+                }
+            }
+
+			for(int i = 0; i < DeckConfig.Elements.Count; i++) {
+				DeckElement columnDef = DeckConfig.Elements[i];
+				if (columnDef.IsStatic) continue;
+
+				DeckGridControl.Columns.Insert(0, new DataGridTextColumn() {
+					Header = columnDef.DisplayName,
+					Binding = new Binding($"CardValues[{columnDef.DisplayName}]"),
+				});
+			}
 		}
 
 		public void AddNewCard(object o) {

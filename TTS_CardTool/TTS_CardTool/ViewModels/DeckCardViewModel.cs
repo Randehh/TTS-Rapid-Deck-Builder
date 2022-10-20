@@ -1,5 +1,6 @@
 ﻿using RondoFramework.BaseClasses;
 using System;
+using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace TTS_CardTool.ViewModels {
@@ -28,17 +29,12 @@ namespace TTS_CardTool.ViewModels {
 			set => SetProperty(ref m_CountDecreaseCommand, value);
 		}
 
-		private string m_Title = null;
-		public string Title {
-			get => m_Title;
-			set => SetProperty(ref m_Title, value);
-		}
-
-		private string m_Description = null;
-		public string Description {
-			get => m_Description;
-			set => SetProperty(ref m_Description, value);
-		}
+		private Dictionary<string, string> m_CardValues = new Dictionary<string, string>();
+		public Dictionary<string, string> CardValues
+        {
+			get => m_CardValues;
+			set => SetProperty(ref m_CardValues, value);
+        }
 
 		private int m_Count = 1;
 		public int Count {

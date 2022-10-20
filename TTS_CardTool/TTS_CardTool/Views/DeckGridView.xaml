@@ -67,6 +67,8 @@
 				</Grid.RowDefinitions>
 
 				<DataGrid
+                    x:Name="DeckGrid"
+                    DataContextChanged="DeckGrid_DataContextChanged"
 					ItemsSource="{Binding CardDisplayList}"
 					SelectedItem="{Binding SelectedCard}"
 					CanUserAddRows="False"
@@ -126,10 +128,8 @@
 							</Grid>
 						</DataTemplate>
 					</DataGrid.Resources>
-					<DataGrid.Columns>
-						<DataGridTextColumn Header="Card title" Binding="{Binding Title}" Width="4*"/>
-						<DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="8*"/>
-						<DataGridTemplateColumn Header="Amount in deck" CellTemplate="{StaticResource CardCounter}" Width="*"/>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Amount in deck" CellTemplate="{StaticResource CardCounter}" Width="*"/>
 						<DataGridTemplateColumn Header="" CellTemplate="{StaticResource RemoveButton}" Width="*"/>
 					</DataGrid.Columns>
 				</DataGrid>

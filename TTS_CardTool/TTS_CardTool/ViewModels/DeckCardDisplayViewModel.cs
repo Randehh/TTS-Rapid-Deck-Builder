@@ -1,5 +1,6 @@
 ﻿using RondoFramework.BaseClasses;
 using System;
+using System.Collections.Generic;
 
 namespace TTS_CardTool.ViewModels {
 	public class DeckCardDisplayViewModel : ViewModelBase, IDeckCardViewModel {
@@ -21,14 +22,9 @@ namespace TTS_CardTool.ViewModels {
 
 		private DeckCardViewModel m_ReferenceCard;
 
-		public string Title {
-			get => m_ReferenceCard.Title;
-			set => m_ReferenceCard.Title = value;
-		}
-
-		public string Description {
-			get => m_ReferenceCard.Description;
-			set => m_ReferenceCard.Description = value;
+		public Dictionary<string, string> CardValues {
+			get => m_ReferenceCard.CardValues;
+			set => m_ReferenceCard.CardValues = value;
 		}
 
 		public int Count {
@@ -38,9 +34,10 @@ namespace TTS_CardTool.ViewModels {
 
 		public bool IsChild { get; }
 
-		public Action OnCardUpdated {
+		public Action OnCardUpdated
+		{
 			get => m_ReferenceCard.OnCardUpdated;
 			set => m_ReferenceCard.OnCardUpdated = value;
 		}
-	}
+    }
 }

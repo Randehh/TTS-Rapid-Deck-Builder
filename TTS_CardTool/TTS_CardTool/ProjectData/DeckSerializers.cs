@@ -1,4 +1,5 @@
 ﻿using RondoFramework.ProjectManager;
+using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using TTS_CardTool.ViewModels;
 
@@ -19,11 +20,13 @@ namespace TTS_CardTool.ProjectData {
 			DeckViewModel vm = new DeckViewModel(config);
 
 			foreach (JsonObject cardObj in document["cards"].AsArray()) {
-				vm.AddNewCard(new DeckCardViewModel() {
-					Title = cardObj["name"]?.GetValue<string>(),
-					Description = cardObj["description"]?.GetValue<string>(),
+				DeckCardViewModel card = new DeckCardViewModel() {
 					Count = cardObj["count"]?.GetValue<int>() ?? 1,
-				});
+				};
+				foreach(KeyValuePair<string, JsonNode> cardValue in cardObj["values"].AsObject()) {
+					card.CardValues[cardValue.Key] = cardValue.Value.GetValue<string>();
+                }
+				vm.AddNewCard(card);
 			}
 			return vm;
 		}
@@ -48,9 +51,12 @@ namespace TTS_CardTool.ProjectData {
 		private JsonArray CreateCardList(DeckViewModel module) {
 			JsonArray parentObj = new JsonArray();
 			foreach (DeckCardViewModel card in module.CardList) {
+				JsonObject values = new JsonObject();
+				foreach(var pair in card.CardValues) {
+					values[pair.Key] = pair.Value;
+                }
 				parentObj.Add(new JsonObject() {
-					["name"] = card.Title,
-					["description"] = card.Description,
+					["values"] = values,
 					["count"] = card.Count
 				});
 			}

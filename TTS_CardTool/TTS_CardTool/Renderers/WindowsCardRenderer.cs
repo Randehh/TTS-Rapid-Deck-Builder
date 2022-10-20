@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using TTS_CardTool.ViewModels;
+using TTS_CardTool.ViewModels.DeckElements;
 
 namespace TTS_CardTool.Renderers {
 	public class WindowsCardRenderer : ICardRenderer {
@@ -145,8 +146,21 @@ namespace TTS_CardTool.Renderers {
 				RectangleF descriptionRegion = new RectangleF(cardRectMargins.X, cardRectMargins.Y + cardRectMargins.Height * 0.25f, cardRectMargins.Width, cardRectMargins.Height * 0.75f);
 
 				Font font = GetFont(fontType);
-				WriteStringInRegion(gfx, card.Title, titleRegion, font, deck.DeckConfig.OutlineSize, DefaultStringFormat);
-				WriteStringInRegion(gfx, card.Description, descriptionRegion, font, deck.DeckConfig.OutlineSize, DefaultStringFormat);
+				foreach(DeckElement element in deck.DeckConfig.Elements) {
+					DrawDeckElement(gfx, deck, card, element, font, cardRectMargins);
+                }
+				//WriteStringInRegion(gfx, card.Title, titleRegion, font, deck.DeckConfig.OutlineSize, DefaultStringFormat);
+				//WriteStringInRegion(gfx, card.Description, descriptionRegion, font, deck.DeckConfig.OutlineSize, DefaultStringFormat);
+			}
+		}
+
+		private void DrawDeckElement(Graphics gfx, DeckViewModel deck, IDeckCardViewModel card, DeckElement element, Font font, RectangleF cardRect) {
+			RectangleF elementRect = new RectangleF(cardRect.Width * element.PositionStartX, cardRect.Height * element.PositionEndY, cardRect.Width * element.PositionEndX, cardRect.Height * element.PositionEndY);
+			if (element is DeckElementText textElement) {
+                if (card.CardValues.ContainsKey(textElement.DisplayName)) {
+					string text = card.CardValues[textElement.DisplayName];
+					WriteStringInRegion(gfx, text, elementRect, font, deck.DeckConfig.OutlineSize, DefaultStringFormat);
+				}
 			}
 		}
 

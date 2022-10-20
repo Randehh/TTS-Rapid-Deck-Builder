@@ -1,25 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using TTS_CardTool.ViewModels;
 
-namespace TTS_CardTool.Views {
-	/// <summary>
-	/// Interaction logic for DeckGridView.xaml
-	/// </summary>
-	public partial class DeckGridView : UserControl {
-		public DeckGridView() {
-			InitializeComponent();
-		}
-	}
+namespace TTS_CardTool.Views
+{
+    /// <summary>
+    /// Interaction logic for DeckGridView.xaml
+    /// </summary>
+    public partial class DeckGridView : UserControl {
+        public DeckGridView() {
+            InitializeComponent();
+        }
+
+        private void DeckGrid_DataContextChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e) {
+            if(DataContext is DeckViewModel deckVM) {
+                deckVM.DeckGridControl = DeckGrid;
+                deckVM.GenerateGridColumns();
+            }
+        }
+    }
 }
