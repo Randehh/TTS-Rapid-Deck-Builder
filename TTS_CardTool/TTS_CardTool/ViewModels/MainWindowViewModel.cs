@@ -117,6 +117,12 @@ namespace TTS_CardTool.ViewModels {
 
 			string path = $"{file.FullPath}.project";
 			IProject project = m_ProjectManager.Load(path);
+
+			if(project == null) {
+				TextDialog.ShowDialog("Error", "Project could not be opened.");
+				return;
+            }
+
 			LoadProject(project);
 		}
 

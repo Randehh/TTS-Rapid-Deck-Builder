@@ -198,7 +198,7 @@ namespace TTS_CardTool.Renderers {
 
 		public RectangleF GetCenteredRectangle(float elementWidth, float elementHeight, RectangleF rectRegion, bool centerHorizontal = true, bool centerVertical = true) {
 			float offsetX = (rectRegion.Width - elementWidth) * (centerHorizontal ? 0.5f : 0f);
-			float offsetY = (rectRegion.Height - elementHeight) * (centerVertical ? 0.5f : 0f);
+			float offsetY = (rectRegion.Height - (elementHeight * 0.5f)) * (centerVertical ? 0.5f : 0f);
 			return new RectangleF(rectRegion.X + offsetX, rectRegion.Y + offsetY, rectRegion.Width, rectRegion.Height);
 		}
 
